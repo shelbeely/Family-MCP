@@ -17,7 +17,14 @@ export class EncryptedTokenStore {
   private password: string;
 
   constructor(password?: string) {
-    this.password = password || process.env.FAMILY_MCP_PASSWORD || 'default-password-change-me';
+    const passwordInput = password || process.env.FAMILY_MCP_PASSWORD;
+    
+    if (!passwordInput) {
+      console.warn('Warning: Using default password for token encryption. Set FAMILY_MCP_PASSWORD environment variable for better security.');
+      this.password = 'default-password-change-me';
+    } else {
+      this.password = passwordInput;
+    }
   }
 
   private getKey(salt: Buffer): Buffer {
