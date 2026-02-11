@@ -329,6 +329,148 @@ export function getTools(): Tool[] {
         required: ['personId'],
       },
     },
+    // Phase 1: Ancestry & Pedigree Navigation
+    {
+      name: 'ancestry_get',
+      description: 'Get multi-generational ancestry/pedigree for a person from FamilySearch. Returns ancestor tree up to 8 generations.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get ancestry for' },
+          generations: { type: 'number', description: 'Number of generations (1-8, default: 4)' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'descendancy_get',
+      description: 'Get descendancy tree for a person from FamilySearch. Returns descendants up to 8 generations.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get descendants for' },
+          generations: { type: 'number', description: 'Number of generations (1-8, default: 2)' },
+        },
+        required: ['personId'],
+      },
+    },
+    // Phase 1: Person Create, Update, Delete
+    {
+      name: 'person_create',
+      description: 'Create a new person in the FamilySearch Family Tree. Requires at least a given name and surname.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          givenName: { type: 'string', description: 'Given (first) name of the person' },
+          surname: { type: 'string', description: 'Surname (last name) of the person' },
+          gender: { type: 'string', enum: ['Male', 'Female', 'Unknown'], description: 'Gender of the person' },
+          birthDate: { type: 'string', description: 'Birth date (e.g., "12 March 1820")' },
+          birthPlace: { type: 'string', description: 'Birth place (e.g., "London, England")' },
+          deathDate: { type: 'string', description: 'Death date (e.g., "5 January 1890")' },
+          deathPlace: { type: 'string', description: 'Death place (e.g., "New York, New York")' },
+        },
+        required: ['givenName', 'surname'],
+      },
+    },
+    {
+      name: 'person_update',
+      description: 'Update an existing person\'s information in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to update' },
+          givenName: { type: 'string', description: 'Updated given (first) name' },
+          surname: { type: 'string', description: 'Updated surname (last name)' },
+          gender: { type: 'string', enum: ['Male', 'Female', 'Unknown'], description: 'Updated gender' },
+          birthDate: { type: 'string', description: 'Updated birth date' },
+          birthPlace: { type: 'string', description: 'Updated birth place' },
+          deathDate: { type: 'string', description: 'Updated death date' },
+          deathPlace: { type: 'string', description: 'Updated death place' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'person_delete',
+      description: 'Delete a person from the FamilySearch Family Tree. Requires a reason and explicit confirmation. This is a destructive operation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to delete' },
+          reason: { type: 'string', description: 'Reason for deletion (required by FamilySearch)' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['personId', 'reason', 'confirm'],
+      },
+    },
+    // Phase 1: Relationship Management
+    {
+      name: 'relationship_create_couple',
+      description: 'Create a couple/spouse relationship between two persons in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          person1Id: { type: 'string', description: 'The ID of the first person in the couple' },
+          person2Id: { type: 'string', description: 'The ID of the second person in the couple' },
+        },
+        required: ['person1Id', 'person2Id'],
+      },
+    },
+    {
+      name: 'relationship_create_parent_child',
+      description: 'Create a parent-child relationship in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          parentId: { type: 'string', description: 'The ID of the parent' },
+          childId: { type: 'string', description: 'The ID of the child' },
+        },
+        required: ['parentId', 'childId'],
+      },
+    },
+    {
+      name: 'relationship_delete',
+      description: 'Delete a relationship from the FamilySearch Family Tree. Requires a reason and explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          relationshipId: { type: 'string', description: 'The ID of the relationship to delete' },
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          reason: { type: 'string', description: 'Reason for deletion' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['relationshipId', 'type', 'reason', 'confirm'],
+      },
+    },
+    // Phase 1: User & Navigation
+    {
+      name: 'user_current',
+      description: 'Get information about the currently authenticated FamilySearch user.',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'user_tree_person',
+      description: 'Get the tree person associated with the currently authenticated user. Useful as a starting point for family tree exploration.',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'relationship_find',
+      description: 'Find the relationship path between two persons in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId1: { type: 'string', description: 'The ID of the first person' },
+          personId2: { type: 'string', description: 'The ID of the second person' },
+        },
+        required: ['personId1', 'personId2'],
+      },
+    },
   ];
 }
 

@@ -148,3 +148,70 @@ export const FamilyTreeDrawingSchema = z.object({
 
 // Healthcheck schema
 export const HealthcheckSchema = z.object({});
+
+// Phase 1: Ancestry & Pedigree
+export const AncestryGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get ancestry for'),
+  generations: z.number().min(1).max(8).optional().describe('Number of generations (1-8, default: 4)'),
+});
+
+export const DescendancyGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get descendants for'),
+  generations: z.number().min(1).max(8).optional().describe('Number of generations (1-8, default: 2)'),
+});
+
+// Phase 1: Person CRUD
+export const PersonCreateSchema = z.object({
+  givenName: z.string().describe('Given (first) name of the person'),
+  surname: z.string().describe('Surname (last name) of the person'),
+  gender: z.enum(['Male', 'Female', 'Unknown']).optional().describe('Gender of the person'),
+  birthDate: z.string().optional().describe('Birth date (e.g., "12 March 1820")'),
+  birthPlace: z.string().optional().describe('Birth place (e.g., "London, England")'),
+  deathDate: z.string().optional().describe('Death date (e.g., "5 January 1890")'),
+  deathPlace: z.string().optional().describe('Death place (e.g., "New York, New York")'),
+});
+
+export const PersonUpdateSchema = z.object({
+  personId: z.string().describe('The ID of the person to update'),
+  givenName: z.string().optional().describe('Updated given (first) name'),
+  surname: z.string().optional().describe('Updated surname (last name)'),
+  gender: z.enum(['Male', 'Female', 'Unknown']).optional().describe('Updated gender'),
+  birthDate: z.string().optional().describe('Updated birth date'),
+  birthPlace: z.string().optional().describe('Updated birth place'),
+  deathDate: z.string().optional().describe('Updated death date'),
+  deathPlace: z.string().optional().describe('Updated death place'),
+});
+
+export const PersonDeleteSchema = z.object({
+  personId: z.string().describe('The ID of the person to delete'),
+  reason: z.string().describe('Reason for deletion (required by FamilySearch)'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 1: Relationship management
+export const RelationshipCreateCoupleSchema = z.object({
+  person1Id: z.string().describe('The ID of the first person in the couple'),
+  person2Id: z.string().describe('The ID of the second person in the couple'),
+});
+
+export const RelationshipCreateParentChildSchema = z.object({
+  parentId: z.string().describe('The ID of the parent'),
+  childId: z.string().describe('The ID of the child'),
+});
+
+export const RelationshipDeleteSchema = z.object({
+  relationshipId: z.string().describe('The ID of the relationship to delete'),
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  reason: z.string().describe('Reason for deletion'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 1: User & navigation
+export const UserCurrentSchema = z.object({});
+
+export const UserTreePersonSchema = z.object({});
+
+export const RelationshipFindSchema = z.object({
+  personId1: z.string().describe('The ID of the first person'),
+  personId2: z.string().describe('The ID of the second person'),
+});

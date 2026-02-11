@@ -174,6 +174,178 @@ export class FamilySearchClient {
     return this.request(`/tree/persons/${personId}/gedcomx`);
   }
 
+  // Phase 1: Ancestry & Pedigree
+  async getAncestry(personId: string, generations?: number): Promise<any> {
+    const params = new URLSearchParams({ person: personId });
+    if (generations) params.set('generations', String(generations));
+    return this.request(`/tree/ancestry?${params}`);
+  }
+
+  async getDescendancy(personId: string, generations?: number): Promise<any> {
+    const params = new URLSearchParams({ person: personId });
+    if (generations) params.set('generations', String(generations));
+    return this.request(`/tree/descendancy?${params}`);
+  }
+
+  // Phase 1: Person CRUD
+  async createPerson(personData: {
+    givenName: string;
+    surname: string;
+    gender?: string;
+    birthDate?: string;
+    birthPlace?: string;
+    deathDate?: string;
+    deathPlace?: string;
+  }): Promise<any> {
+    const names = [{
+      nameForms: [{
+        fullText: `${personData.givenName} ${personData.surname}`,
+        parts: [
+          { type: 'http://gedcomx.org/Given', value: personData.givenName },
+          { type: 'http://gedcomx.org/Surname', value: personData.surname },
+        ],
+      }],
+    }];
+
+    const facts: any[] = [];
+    if (personData.birthDate || personData.birthPlace) {
+      facts.push({
+        type: 'http://gedcomx.org/Birth',
+        date: personData.birthDate ? { original: personData.birthDate } : undefined,
+        place: personData.birthPlace ? { original: personData.birthPlace } : undefined,
+      });
+    }
+    if (personData.deathDate || personData.deathPlace) {
+      facts.push({
+        type: 'http://gedcomx.org/Death',
+        date: personData.deathDate ? { original: personData.deathDate } : undefined,
+        place: personData.deathPlace ? { original: personData.deathPlace } : undefined,
+      });
+    }
+
+    const body: any = {
+      persons: [{
+        names,
+        gender: personData.gender ? { type: `http://gedcomx.org/${personData.gender}` } : undefined,
+        facts: facts.length > 0 ? facts : undefined,
+      }],
+    };
+
+    return this.request('/tree/persons', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async updatePerson(personId: string, updates: {
+    givenName?: string;
+    surname?: string;
+    gender?: string;
+    birthDate?: string;
+    birthPlace?: string;
+    deathDate?: string;
+    deathPlace?: string;
+  }): Promise<any> {
+    const body: any = { persons: [{ id: personId }] };
+    const person = body.persons[0];
+
+    if (updates.givenName || updates.surname) {
+      person.names = [{
+        nameForms: [{
+          fullText: [updates.givenName, updates.surname].filter(Boolean).join(' '),
+          parts: [
+            ...(updates.givenName ? [{ type: 'http://gedcomx.org/Given', value: updates.givenName }] : []),
+            ...(updates.surname ? [{ type: 'http://gedcomx.org/Surname', value: updates.surname }] : []),
+          ],
+        }],
+      }];
+    }
+
+    if (updates.gender) {
+      person.gender = { type: `http://gedcomx.org/${updates.gender}` };
+    }
+
+    const facts: any[] = [];
+    if (updates.birthDate || updates.birthPlace) {
+      facts.push({
+        type: 'http://gedcomx.org/Birth',
+        date: updates.birthDate ? { original: updates.birthDate } : undefined,
+        place: updates.birthPlace ? { original: updates.birthPlace } : undefined,
+      });
+    }
+    if (updates.deathDate || updates.deathPlace) {
+      facts.push({
+        type: 'http://gedcomx.org/Death',
+        date: updates.deathDate ? { original: updates.deathDate } : undefined,
+        place: updates.deathPlace ? { original: updates.deathPlace } : undefined,
+      });
+    }
+    if (facts.length > 0) person.facts = facts;
+
+    return this.request(`/tree/persons/${personId}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deletePerson(personId: string, reason: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}`, {
+      method: 'DELETE',
+      headers: { 'X-Reason': reason },
+    });
+  }
+
+  // Phase 1: Relationship management
+  async createCoupleRelationship(person1Id: string, person2Id: string): Promise<any> {
+    const body = {
+      relationships: [{
+        type: 'http://gedcomx.org/Couple',
+        person1: { resourceId: person1Id, resource: `https://api.familysearch.org/platform/tree/persons/${person1Id}` },
+        person2: { resourceId: person2Id, resource: `https://api.familysearch.org/platform/tree/persons/${person2Id}` },
+      }],
+    };
+    return this.request('/tree/relationships', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async createParentChildRelationship(parentId: string, childId: string): Promise<any> {
+    const body = {
+      childAndParentsRelationships: [{
+        parent1: { resourceId: parentId, resource: `https://api.familysearch.org/platform/tree/persons/${parentId}` },
+        child: { resourceId: childId, resource: `https://api.familysearch.org/platform/tree/persons/${childId}` },
+      }],
+    };
+    return this.request('/tree/child-and-parents-relationships', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteRelationship(relationshipId: string, type: string, reason: string): Promise<any> {
+    const endpoint = type === 'couple'
+      ? `/tree/couple-relationships/${relationshipId}`
+      : `/tree/child-and-parents-relationships/${relationshipId}`;
+    return this.request(endpoint, {
+      method: 'DELETE',
+      headers: { 'X-Reason': reason },
+    });
+  }
+
+  // Phase 1: User & navigation
+  async getCurrentUser(): Promise<any> {
+    return this.request('/users/current');
+  }
+
+  async getCurrentTreePerson(): Promise<any> {
+    return this.request('/tree/current-person');
+  }
+
+  async findRelationship(personId1: string, personId2: string): Promise<any> {
+    return this.request(`/tree/relationships?person=${personId1}&person=${personId2}`);
+  }
+
   // Healthcheck
   async healthcheck(): Promise<any> {
     try {

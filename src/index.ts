@@ -226,6 +226,62 @@ class FamilySearchMCPServer {
           result = await generateFamilyTreeDrawing(this.client, args.personId, args.generations);
           break;
 
+        // Phase 1: Ancestry & Pedigree
+        case 'ancestry_get':
+          result = await this.client.getAncestry(args.personId, args.generations);
+          break;
+
+        case 'descendancy_get':
+          result = await this.client.getDescendancy(args.personId, args.generations);
+          break;
+
+        // Phase 1: Person CRUD
+        case 'person_create':
+          result = await this.client.createPerson(args);
+          break;
+
+        case 'person_update':
+          result = await this.client.updatePerson(args.personId, args);
+          break;
+
+        case 'person_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deletePerson(args.personId, args.reason);
+          }
+          break;
+
+        // Phase 1: Relationship Management
+        case 'relationship_create_couple':
+          result = await this.client.createCoupleRelationship(args.person1Id, args.person2Id);
+          break;
+
+        case 'relationship_create_parent_child':
+          result = await this.client.createParentChildRelationship(args.parentId, args.childId);
+          break;
+
+        case 'relationship_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteRelationship(args.relationshipId, args.type, args.reason);
+          }
+          break;
+
+        // Phase 1: User & Navigation
+        case 'user_current':
+          result = await this.client.getCurrentUser();
+          break;
+
+        case 'user_tree_person':
+          result = await this.client.getCurrentTreePerson();
+          break;
+
+        case 'relationship_find':
+          result = await this.client.findRelationship(args.personId1, args.personId2);
+          break;
+
         default:
           throw new Error(`Unknown tool: ${name}`);
       }

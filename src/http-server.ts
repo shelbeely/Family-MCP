@@ -173,6 +173,51 @@ export class FamilySearchHTTPServer {
           case 'family_tree_drawing':
             result = await generateFamilyTreeDrawing(this.client, typedArgs.personId, typedArgs.generations);
             break;
+          // Phase 1: Ancestry & Pedigree
+          case 'ancestry_get':
+            result = await this.client.getAncestry(typedArgs.personId, typedArgs.generations);
+            break;
+          case 'descendancy_get':
+            result = await this.client.getDescendancy(typedArgs.personId, typedArgs.generations);
+            break;
+          // Phase 1: Person CRUD
+          case 'person_create':
+            result = await this.client.createPerson(typedArgs);
+            break;
+          case 'person_update':
+            result = await this.client.updatePerson(typedArgs.personId, typedArgs);
+            break;
+          case 'person_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deletePerson(typedArgs.personId, typedArgs.reason);
+            }
+            break;
+          // Phase 1: Relationship Management
+          case 'relationship_create_couple':
+            result = await this.client.createCoupleRelationship(typedArgs.person1Id, typedArgs.person2Id);
+            break;
+          case 'relationship_create_parent_child':
+            result = await this.client.createParentChildRelationship(typedArgs.parentId, typedArgs.childId);
+            break;
+          case 'relationship_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteRelationship(typedArgs.relationshipId, typedArgs.type, typedArgs.reason);
+            }
+            break;
+          // Phase 1: User & Navigation
+          case 'user_current':
+            result = await this.client.getCurrentUser();
+            break;
+          case 'user_tree_person':
+            result = await this.client.getCurrentTreePerson();
+            break;
+          case 'relationship_find':
+            result = await this.client.findRelationship(typedArgs.personId1, typedArgs.personId2);
+            break;
           default:
             throw new Error(`Unknown tool: ${name}`);
         }
