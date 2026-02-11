@@ -1,5 +1,16 @@
 import { FamilySearchClient } from './familysearch-client.js';
 
+function normalizeGender(person: any): string {
+  return person.display?.gender || person.gender?.type?.split('/').pop() || '';
+}
+
+function getPersonColors(isRoot: boolean, gender: string): { bgColor: string; strokeColor: string } {
+  if (isRoot) return { bgColor: '#fef3c7', strokeColor: '#d97706' };
+  if (gender === 'Male' || gender === 'MALE') return { bgColor: '#dbeafe', strokeColor: '#2563eb' };
+  if (gender === 'Female' || gender === 'FEMALE') return { bgColor: '#fce7f3', strokeColor: '#db2777' };
+  return { bgColor: '#f3f4f6', strokeColor: '#6b7280' };
+}
+
 /**
  * Generates a Mermaid flowchart representing a family tree.
  * Inspired by mcp-mermaid (https://github.com/hustcc/mcp-mermaid) approach
@@ -28,7 +39,7 @@ export async function generateFamilyTreeChart(
       const birth = person.display?.birthDate || '';
       const death = person.display?.deathDate || '';
       const lifespan = birth || death ? `\\n${birth} - ${death}` : '';
-      const gender = person.display?.gender || person.gender?.type?.split('/').pop() || '';
+      const gender = normalizeGender(person);
       const shape = gender === 'Male' || gender === 'MALE'
         ? `[["${name}${lifespan}"]]`
         : gender === 'Female' || gender === 'FEMALE'
@@ -60,7 +71,7 @@ export async function generateFamilyTreeChart(
 
   // Apply styles
   for (const person of persons) {
-    const gender = person.display?.gender || person.gender?.type?.split('/').pop() || '';
+    const gender = normalizeGender(person);
     if (person.id === personId) {
       lines.push(`    class ${person.id} root`);
     } else if (gender === 'Male' || gender === 'MALE') {
@@ -262,11 +273,9 @@ export async function generateFamilyTreeDrawing(
     const death = person.display?.deathDate || '';
     const lifespan = birth || death ? `${birth} - ${death}` : '';
     const isRoot = person.id === personId;
-    const gender = person.display?.gender || person.gender?.type?.split('/').pop() || '';
+    const gender = normalizeGender(person);
 
-    // Background color based on gender/root
-    const bgColor = isRoot ? '#fef3c7' : gender === 'Male' || gender === 'MALE' ? '#dbeafe' : gender === 'Female' || gender === 'FEMALE' ? '#fce7f3' : '#f3f4f6';
-    const strokeColor = isRoot ? '#d97706' : gender === 'Male' || gender === 'MALE' ? '#2563eb' : gender === 'Female' || gender === 'FEMALE' ? '#db2777' : '#6b7280';
+    const { bgColor, strokeColor } = getPersonColors(isRoot, gender);
 
     // Rectangle element
     elements.push({
