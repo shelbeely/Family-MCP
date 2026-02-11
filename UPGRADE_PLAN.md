@@ -19,6 +19,9 @@ This document provides a comprehensive, prioritized upgrade plan for the Family-
 - [Phase 5: Authentication & Authorization (High Priority)](#phase-5-authentication--authorization-high-priority)
 - [Phase 6: Advanced Research & Discovery (Lower Priority)](#phase-6-advanced-research--discovery-lower-priority)
 - [Phase 7: Developer Experience & Ecosystem (Lower Priority)](#phase-7-developer-experience--ecosystem-lower-priority)
+- [Phase 8: Portraits, Media & User Content (Lower Priority)](#phase-8-portraits-media--user-content-lower-priority)
+- [Phase 9: User Trees, Groups & Genealogies (Lower Priority)](#phase-9-user-trees-groups--genealogies-lower-priority)
+- [Phase 10: Standards, Vocabularies & Name Services (Lower Priority)](#phase-10-standards-vocabularies--name-services-lower-priority)
 - [API Endpoint Coverage Matrix](#api-endpoint-coverage-matrix)
 - [Implementation Guidelines](#implementation-guidelines)
 
@@ -210,6 +213,46 @@ These upgrades address the most impactful missing capabilities — features that
 
 ---
 
+### 1.5 Current User's Tree Person
+
+**Gap:** No way to get the tree person associated with the currently authenticated user.
+
+**FamilySearch API Endpoint:**
+- `GET /platform/tree/current-person` — Returns the current user's tree person
+
+**New Tool:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `user_tree_person` | Get the tree person for the currently authenticated user | None |
+
+**Implementation:**
+- Add `getCurrentTreePerson()` to `FamilySearchClient`
+- Useful as a starting point for family tree exploration
+- Expected effort: Small
+
+---
+
+### 1.6 Find Relationship
+
+**Gap:** No way to find the relationship path between two persons in the tree.
+
+**FamilySearch API Endpoint:**
+- `GET /platform/tree/relationships?person={pid1}&person={pid2}` — Find relationship between two persons
+
+**New Tool:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `relationship_find` | Find the relationship path between two persons | `personId1` (required), `personId2` (required) |
+
+**Implementation:**
+- Add `findRelationship(personId1, personId2)` to `FamilySearchClient`
+- Returns relationship path/description between two people
+- Expected effort: Small
+
+---
+
 ## Phase 2: Extended Tree Operations (Medium Priority)
 
 ### 2.1 Change History
@@ -300,6 +343,105 @@ These upgrades address the most impactful missing capabilities — features that
 
 ---
 
+### 2.5 Restore Operations
+
+**Gap:** No ability to restore deleted persons, relationships, or undo changes. FamilySearch supports restoring previously deleted records.
+
+**FamilySearch API Endpoints:**
+- `POST /platform/tree/persons/{personId}/restore` — Restore a deleted person
+- `POST /platform/tree/child-and-parents-relationships/{relationshipId}/restore` — Restore a deleted child-parent relationship
+- `POST /platform/tree/couple-relationships/{relationshipId}/restore` — Restore a deleted couple relationship
+- `POST /platform/tree/changes/{changeId}/restore` — Restore a specific change
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `person_restore` | Restore a previously deleted person | `personId` (required) |
+| `relationship_restore` | Restore a deleted relationship | `relationshipId` (required), `type` (couple or parent-child) |
+| `change_restore` | Restore (undo) a specific change | `changeId` (required) |
+
+**Implementation:**
+- Add restore methods to `FamilySearchClient`
+- Important undo capability for accidental deletions
+- Expected effort: Small
+
+---
+
+### 2.6 Match Management
+
+**Gap:** `merges_suggest` identifies potential duplicates, but cannot manage match resolutions or declare non-matches. The API supports full match workflow management.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/persons/{personId}/matches` — Read person matches by ID
+- `POST /platform/tree/persons/{personId}/matches/{matchId}` — Update match resolution
+- `GET /platform/tree/persons/{personId}/not-a-matches` — Read not-a-match declarations
+- `POST /platform/tree/persons/{personId}/not-a-matches` — Create not-a-match declaration
+- `DELETE /platform/tree/persons/{personId}/not-a-matches/{declarationId}` — Delete not-a-match declaration
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `matches_get` | Get match candidates for a person (server-side) | `personId` (required) |
+| `match_resolve` | Accept or reject a match resolution | `personId`, `matchId`, `resolution` (accept/reject) |
+| `not_a_match_create` | Declare two records are NOT the same person | `personId`, `notMatchId` |
+| `not_a_match_delete` | Remove a not-a-match declaration | `personId`, `declarationId` |
+
+**Implementation:**
+- Extends the merge/match workflow from existing `merges_suggest`
+- Expected effort: Medium
+
+---
+
+### 2.7 Preferred Relationships
+
+**Gap:** No way to set or read preferred parent or spouse relationships. Users may have multiple parent or spouse relationships and need to designate one as preferred.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/persons/{personId}/preferred-parent-relationship` — Read preferred parent relationship
+- `PUT /platform/tree/persons/{personId}/preferred-parent-relationship` — Set preferred parent relationship
+- `DELETE /platform/tree/persons/{personId}/preferred-parent-relationship` — Remove preferred parent relationship
+- `GET /platform/tree/persons/{personId}/preferred-spouse-relationship` — Read preferred spouse relationship
+- `PUT /platform/tree/persons/{personId}/preferred-spouse-relationship` — Set preferred spouse relationship
+- `DELETE /platform/tree/persons/{personId}/preferred-spouse-relationship` — Remove preferred spouse relationship
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `preferred_parent_get` | Get preferred parent relationship for a person | `personId` |
+| `preferred_parent_set` | Set preferred parent relationship | `personId`, `relationshipId` |
+| `preferred_spouse_get` | Get preferred spouse relationship for a person | `personId` |
+| `preferred_spouse_set` | Set preferred spouse relationship | `personId`, `relationshipId` |
+
+**Implementation:**
+- Add preferred relationship methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 2.8 Conclusion Management
+
+**Gap:** No ability to delete individual conclusions (facts, events, names) from a person without deleting the entire person record.
+
+**FamilySearch API Endpoints:**
+- `DELETE /platform/tree/persons/{personId}/conclusions/{conclusionId}` — Delete a specific conclusion
+- `DELETE /platform/tree/couple-relationships/{relationshipId}/conclusions/{conclusionId}` — Delete a couple relationship conclusion
+- `DELETE /platform/tree/child-and-parents-relationships/{relationshipId}/conclusions/{conclusionId}` — Delete a child-parent relationship conclusion
+
+**New Tool:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `conclusion_delete` | Delete a specific conclusion (fact/event/name) from a person or relationship | `entityId` (person or relationship ID), `conclusionId`, `entityType` (person, couple, child-parent) |
+
+**Implementation:**
+- Add conclusion deletion method to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
 ## Phase 3: Collaboration & Metadata Features (Medium Priority)
 
 ### 3.1 Place Authority Integration
@@ -333,18 +475,26 @@ These upgrades address the most impactful missing capabilities — features that
 **FamilySearch API Endpoints:**
 - `GET /platform/tree/persons/{personId}/discussion-references` — Get discussions for a person
 - `POST /platform/discussions` — Create a discussion
+- `GET /platform/discussions/{discussionId}` — Read a discussion
+- `POST /platform/discussions/{discussionId}` — Update a discussion
+- `GET /platform/discussions/{discussionId}/comments` — Read comments
 - `POST /platform/discussions/{discussionId}/comments` — Add a comment
+- `DELETE /platform/discussions/{discussionId}/comments/{commentId}` — Delete a comment
+- `DELETE /platform/tree/persons/{personId}/discussion-references/{referenceId}` — Remove discussion from person
 
 **New Tools:**
 
 | Tool Name | Description | Parameters |
 |-----------|-------------|------------|
 | `discussions_get` | Get discussions for a person | `personId` |
+| `discussion_read` | Read a specific discussion with comments | `discussionId` |
 | `discussion_create` | Create a new discussion | `title`, `details` |
+| `discussion_update` | Update a discussion | `discussionId`, `title`, `details` |
 | `discussion_comment` | Add a comment to a discussion | `discussionId`, `text` |
+| `discussion_comment_delete` | Delete a comment from a discussion | `discussionId`, `commentId` |
 
 **Implementation:**
-- Add discussion methods to `FamilySearchClient`
+- Add full discussion CRUD methods to `FamilySearchClient`
 - Expected effort: Small-Medium
 
 ---
@@ -369,6 +519,112 @@ These upgrades address the most impactful missing capabilities — features that
 **Implementation:**
 - Extend source management in `FamilySearchClient`
 - Expected effort: Small
+
+---
+
+### 3.3a Source Description Full Lifecycle
+
+**Gap:** Cannot delete source descriptions or view their change history.
+
+**FamilySearch API Endpoints:**
+- `DELETE /platform/sources/descriptions/{sourceId}` — Delete a source description
+- `POST /platform/sources/descriptions/{sourceId}/changes` — Get source description change history
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `source_description_delete` | Delete a source description | `sourceId` |
+| `source_description_changes` | Get change history for a source description | `sourceId` |
+
+**Implementation:**
+- Complete source description lifecycle in `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 3.3b Relationship-Level Sources
+
+**Gap:** Can only manage sources attached to persons. FamilySearch also supports sources on couple relationships and child-parent relationships.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/couple-relationships/{relationshipId}/source-references` — Read couple relationship source references
+- `POST /platform/tree/couple-relationships/{relationshipId}/source-references` — Create couple relationship source reference
+- `DELETE /platform/tree/couple-relationships/{relationshipId}/source-references/{sourceId}` — Delete couple relationship source reference
+- `GET /platform/tree/child-and-parents-relationships/{relationshipId}/source-references` — Read child-parent relationship source references
+- `POST /platform/tree/child-and-parents-relationships/{relationshipId}/source-references` — Create child-parent relationship source reference
+- `DELETE /platform/tree/child-and-parents-relationships/{relationshipId}/source-references/{sourceId}` — Delete child-parent relationship source reference
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `relationship_sources_get` | Get sources for a relationship | `relationshipId`, `type` (couple or child-parent) |
+| `relationship_source_attach` | Attach a source to a relationship | `relationshipId`, `type`, `sourceId` |
+| `relationship_source_detach` | Detach a source from a relationship | `relationshipId`, `type`, `sourceId` |
+
+**Implementation:**
+- Extends existing source management patterns to relationships
+- Expected effort: Small-Medium
+
+---
+
+### 3.3c Relationship-Level Notes
+
+**Gap:** Notes can only be managed for persons (Phase 2.2). FamilySearch also supports notes on couple relationships and child-parent relationships.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/couple-relationships/{relationshipId}/notes` — Read couple relationship notes
+- `POST /platform/tree/couple-relationships/{relationshipId}/notes` — Create couple relationship note
+- `DELETE /platform/tree/couple-relationships/{relationshipId}/notes/{noteId}` — Delete couple relationship note
+- `GET /platform/tree/child-and-parents-relationships/{relationshipId}/notes` — Read child-parent relationship notes
+- `POST /platform/tree/child-and-parents-relationships/{relationshipId}/notes` — Create child-parent relationship note
+- `DELETE /platform/tree/child-and-parents-relationships/{relationshipId}/notes/{noteId}` — Delete child-parent relationship note
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `relationship_notes_get` | Get notes for a relationship | `relationshipId`, `type` (couple or child-parent) |
+| `relationship_note_create` | Add a note to a relationship | `relationshipId`, `type`, `subject`, `text` |
+| `relationship_note_delete` | Delete a note from a relationship | `relationshipId`, `type`, `noteId` |
+
+**Implementation:**
+- Mirrors person-level notes pattern from Phase 2.2
+- Expected effort: Small
+
+---
+
+### 3.3d Source Box (Source Folders & Collections)
+
+**Gap:** No access to user source box — the personal source folder/collection system for organizing source descriptions.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/source-folders` — Read user source folders
+- `POST /platform/tree/source-folders` — Create a source folder
+- `GET /platform/tree/source-folders/{folderId}` — Read a specific source folder
+- `POST /platform/tree/source-folders/{folderId}` — Update a source folder
+- `DELETE /platform/tree/source-folders/{folderId}` — Delete a source folder
+- `GET /platform/tree/source-folders/{folderId}/source-descriptions` — Read source descriptions in a folder
+- `POST /platform/tree/source-folders/{folderId}/source-descriptions` — Add source descriptions to a folder
+- `DELETE /platform/tree/source-folders/{folderId}/source-descriptions` — Remove source descriptions from a folder
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `source_folders_list` | List user's source folders | None |
+| `source_folder_create` | Create a source folder | `name` |
+| `source_folder_get` | Get contents of a source folder | `folderId` |
+| `source_folder_update` | Rename a source folder | `folderId`, `name` |
+| `source_folder_delete` | Delete a source folder | `folderId` |
+| `source_folder_add` | Add source descriptions to a folder | `folderId`, `sourceIds` (array) |
+| `source_folder_remove` | Remove source descriptions from a folder | `folderId`, `sourceIds` (array) |
+
+**Implementation:**
+- New source box module in `FamilySearchClient`
+- Useful for organizing research sources
+- Expected effort: Medium
 
 ---
 
@@ -666,9 +922,337 @@ These improvements address non-functional requirements critical for production u
 
 ---
 
+## Phase 8: Portraits, Media & User Content (Lower Priority)
+
+### 8.1 Person Portraits
+
+**Gap:** No access to person portrait photos. FamilySearch allows users to set a profile portrait for each person.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/persons/{personId}/portrait` — Read person portrait
+- `DELETE /platform/tree/persons/{personId}/portrait` — Delete person portrait
+- `GET /platform/tree/persons/{personId}/portraits` — Read person portraits (all)
+- `POST /platform/tree/persons/{personId}/portraits` — Update person portraits
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `portrait_get` | Get the portrait for a person | `personId` |
+| `portraits_list` | Get all portraits for a person | `personId` |
+| `portrait_set` | Set a portrait for a person | `personId`, `memoryId` |
+| `portrait_delete` | Remove a person's portrait | `personId` |
+
+**Implementation:**
+- Add portrait management methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 8.2 Memory Personas
+
+**Gap:** No support for memory personas — tagging specific people within a memory (e.g., identifying someone in a photo).
+
+**FamilySearch API Endpoints:**
+- `POST /platform/memories/{memoryId}/personas` — Create a memory persona
+- `GET /platform/memories/{memoryId}/personas` — Read memory personas
+- `GET /platform/memories/{memoryId}/personas/{personaId}` — Read a specific memory persona
+- `POST /platform/memories/{memoryId}/personas/{personaId}` — Update a memory persona
+- `DELETE /platform/memories/{memoryId}/personas/{personaId}` — Delete a memory persona
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `memory_personas_list` | List personas (tagged people) in a memory | `memoryId` |
+| `memory_persona_create` | Tag a person in a memory | `memoryId`, `name`, `personId` (optional link to tree person) |
+| `memory_persona_update` | Update a memory persona tag | `memoryId`, `personaId`, fields to update |
+| `memory_persona_delete` | Remove a person tag from a memory | `memoryId`, `personaId` |
+
+**Implementation:**
+- Add persona methods to `FamilySearchClient`
+- Expected effort: Small-Medium
+
+---
+
+### 8.3 Memory Comments
+
+**Gap:** No support for comments on memories. FamilySearch allows users to discuss memories via comments.
+
+**FamilySearch API Endpoints:**
+- `POST /platform/memories/{memoryId}/comments` — Create memory comments
+- `GET /platform/memories/{memoryId}/comments` — Read memory comments
+- `DELETE /platform/memories/{memoryId}/comments/{commentId}` — Delete a memory comment
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `memory_comments_get` | Get comments on a memory | `memoryId` |
+| `memory_comment_create` | Add a comment to a memory | `memoryId`, `text` |
+| `memory_comment_delete` | Delete a comment from a memory | `memoryId`, `commentId` |
+
+**Implementation:**
+- Add memory comment methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 8.4 Memory Artifacts
+
+**Gap:** No ability to update memory artifacts or manage artifact coverage areas.
+
+**FamilySearch API Endpoints:**
+- `POST /platform/memories/{memoryId}/artifacts/{artifactId}` — Update memory artifact
+- `DELETE /platform/memories/{memoryId}/artifacts/{artifactId}/coverage` — Delete memory artifact coverage
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `memory_artifact_update` | Update a memory artifact | `memoryId`, `artifactId`, fields to update |
+| `memory_artifact_coverage_delete` | Delete artifact coverage area | `memoryId`, `artifactId` |
+
+**Implementation:**
+- Add artifact methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 8.5 Memory Browsing
+
+**Gap:** Can search memories but cannot browse or list memories (all memories, user memories).
+
+**FamilySearch API Endpoints:**
+- `GET /platform/memories` — Read memories (list/browse)
+- `GET /platform/memories/users/{userId}` — Read user memories
+- `POST /platform/memories/{memoryId}` — Update a memory
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `memories_list` | Browse/list memories | `count` (optional), `start` (optional) |
+| `memories_user` | List memories for a specific user | `userId` (optional — defaults to current user) |
+| `memory_update` | Update an existing memory | `memoryId`, fields to update |
+
+**Implementation:**
+- Extends existing memory capabilities
+- Expected effort: Small
+
+---
+
+## Phase 9: User Trees, Groups & Genealogies (Lower Priority)
+
+### 9.1 User Tree Management
+
+**Gap:** FamilySearch supports user-specific trees (personal/research trees) separate from the shared Family Tree. No tools exist for managing these.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/trees/current` — Read current tree ID
+- `POST /platform/tree/trees/current` — Set current tree ID
+- `GET /platform/tree/trees/{treeId}` — Read a tree
+- `POST /platform/tree/trees/{treeId}` — Update a tree
+- `DELETE /platform/tree/trees/{treeId}` — Delete a tree
+- `POST /platform/tree/trees` — Create a new tree
+- `GET /platform/tree/trees/{treeId}/persons` — Read tree person IDs
+- `GET /platform/tree/trees/{treeId}/matches` — Read tree matches
+- `GET /platform/tree/trees/{treeId}/changes` — Read tree change history
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `tree_current` | Get the current user's active tree ID | None |
+| `tree_set_current` | Set the current active tree | `treeId` |
+| `tree_get` | Get details about a specific tree | `treeId` |
+| `tree_create` | Create a new personal/research tree | `name`, `description` |
+| `tree_update` | Update a tree's metadata | `treeId`, `name`, `description` |
+| `tree_delete` | Delete a tree | `treeId` |
+| `tree_persons` | List person IDs in a tree | `treeId` |
+| `tree_matches` | Get match suggestions for a tree | `treeId` |
+| `tree_changes` | Get change history for a tree | `treeId` |
+
+**Implementation:**
+- New tree management module in `FamilySearchClient`
+- Expected effort: Medium
+
+---
+
+### 9.2 Groups
+
+**Gap:** FamilySearch supports groups for organizing research collaborators. Not covered.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/tree/groups` — List user's groups
+- `POST /platform/tree/groups` — Create a group
+- `GET /platform/tree/groups/{groupId}` — Read a group
+- `POST /platform/tree/groups/{groupId}` — Update a group
+- `DELETE /platform/tree/groups/{groupId}` — Delete a group
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `groups_list` | List user's groups | None |
+| `group_create` | Create a new group | `name`, `description` |
+| `group_get` | Get a specific group | `groupId` |
+| `group_update` | Update a group | `groupId`, `name`, `description` |
+| `group_delete` | Delete a group | `groupId` |
+
+**Implementation:**
+- Add group management methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
+### 9.3 Genealogies (Personal Trees)
+
+**Gap:** The Genealogies API is an entirely separate tree system for personal/imported genealogies. Not covered at all.
+
+**FamilySearch API Endpoints:**
+- **Trees:** `GET/POST/PUT/DELETE /platform/genealogies/trees/*` — CRUD for genealogy trees
+- **Persons:** `GET/POST/PUT/DELETE /platform/genealogies/trees/{treeId}/persons/*` — CRUD for persons within a genealogy tree
+- **Relationships:** `POST/DELETE /platform/genealogies/trees/{treeId}/relationships/*` — Manage relationships
+- **Sources:** `GET/POST/PUT/DELETE /platform/genealogies/trees/{treeId}/sources/*` — Source descriptions within genealogy trees
+- **Notes:** `GET /platform/genealogies/trees/{treeId}/persons/{personId}/notes/{noteId}` — Read notes
+- **Matches:** `GET /platform/genealogies/trees/{treeId}/matches`, `GET /platform/genealogies/trees/{treeId}/persons/{personId}/matches` — Tree and person-level matching
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `genealogy_trees_list` | List user's genealogy trees | None |
+| `genealogy_tree_create` | Create a new genealogy tree | `name` |
+| `genealogy_tree_get` | Get a genealogy tree | `treeId` |
+| `genealogy_tree_delete` | Delete a genealogy tree | `treeId` |
+| `genealogy_person_create` | Create a person in a genealogy tree | `treeId`, person fields |
+| `genealogy_person_get` | Read a person from a genealogy tree | `treeId`, `personId` |
+| `genealogy_person_update` | Update a person in a genealogy tree | `treeId`, `personId`, fields |
+| `genealogy_person_delete` | Delete a person from a genealogy tree | `treeId`, `personId` |
+| `genealogy_matches_get` | Get match suggestions for a genealogy tree or person | `treeId`, `personId` (optional) |
+
+**Implementation:**
+- New genealogies module in `FamilySearchClient`
+- Important for users who import GEDCOM files into personal trees before merging with shared tree
+- Expected effort: Large
+
+---
+
+## Phase 10: Standards, Vocabularies & Name Services (Lower Priority)
+
+### 10.1 Extended Place Authority
+
+**Gap:** Phase 3.1 covers basic place search/get/children. The full Place Authority API has significantly more capabilities.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/places/{placeId}/descriptions` — Read place descriptions
+- `GET /platform/places/{placeId}/descriptions/{descriptionId}` — Read a specific place description
+- `GET /platform/places/{placeId}/descriptions/{descriptionId}/attributes` — Read place attributes
+- `GET /platform/places/{placeId}/descriptions/{descriptionId}/with-related` — Read place with related places
+- `GET /platform/places/descriptions/group/{groupId}` — Read place descriptions by group
+- `GET /platform/places/types` — Read place types
+- `GET /platform/places/types/{typeId}` — Read a specific place type
+- `GET /platform/places/type-groups` — Read place type groups
+- `GET /platform/places/type-groups/{groupId}` — Read a specific place type group
+- `GET /platform/places/search?parentId={placeId}` — Search for parent places
+- `GET /platform/places/{placeId}/is-child-of/{parentPlaceId}` — Check if place is child of another
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `place_description` | Get detailed description for a place | `placeId`, `descriptionId` (optional) |
+| `place_types` | List all place types | None |
+| `place_type_groups` | List place type groups | None |
+| `place_parents` | Find parent places (jurisdictions above) | `placeId` |
+| `place_is_child` | Check if one place is within another | `placeId`, `parentPlaceId` |
+
+**Implementation:**
+- Extends Phase 3.1 place authority with full feature set
+- Expected effort: Small-Medium
+
+---
+
+### 10.2 Name Standardization & Services
+
+**Gap:** No name analysis or standardization capabilities. FamilySearch provides APIs for name script detection, name segmentation, and name composition.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/names/script?name={name}` — Detect name script (Latin, CJK, Cyrillic, etc.)
+- `GET /platform/names/segments?name={name}` — Segment a name into given name, surname, etc.
+- `POST /platform/names/segments` — Compose a full name from parts
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `name_script` | Detect the script of a name (Latin, CJK, etc.) | `name` |
+| `name_segment` | Segment a name into given name, surname, prefix, suffix parts | `name` |
+| `name_compose` | Compose a full name from individual parts | `givenName`, `surname`, `prefix`, `suffix` |
+
+**Implementation:**
+- Add name services methods to `FamilySearchClient`
+- Useful for international research and name normalization
+- Expected effort: Small
+
+---
+
+### 10.3 Controlled Vocabularies
+
+**Gap:** No access to FamilySearch's controlled vocabulary system for standardized terms (event types, fact types, etc.).
+
+**FamilySearch API Endpoints:**
+- `GET /platform/vocabularies/search?q={query}` — Search controlled vocabulary terms
+- `GET /platform/vocabularies/{termId}` — Read a controlled vocabulary term
+- `GET /platform/vocabularies/{termId}/translations/{locale}` — Read a term translation
+- `GET /platform/vocabularies/concepts/{conceptId}` — Read a vocabulary concept
+- `GET /platform/vocabularies/concepts/{conceptId}/definition` — Read concept definition
+- `GET /platform/vocabularies/lists/{listId}` — Read a controlled vocabulary list
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `vocabulary_search` | Search controlled vocabulary terms | `query` |
+| `vocabulary_term` | Get a specific vocabulary term | `termId`, `locale` (optional for translation) |
+| `vocabulary_list` | Get a controlled vocabulary list | `listId` |
+
+**Implementation:**
+- Add vocabulary methods to `FamilySearchClient`
+- Useful for understanding FamilySearch's standardized event/fact types
+- Expected effort: Small
+
+---
+
+### 10.4 User History & Agent
+
+**Gap:** No access to user history or agent information.
+
+**FamilySearch API Endpoints:**
+- `GET /platform/users/{userId}/history` — Read user history
+- `POST /platform/users/{userId}/history` — Update user history
+- `DELETE /platform/users/{userId}/history/{entryId}` — Delete user history entry
+- `GET /platform/agents/{agentId}` — Read agent information
+
+**New Tools:**
+
+| Tool Name | Description | Parameters |
+|-----------|-------------|------------|
+| `user_history` | Get user activity history | `userId` (optional — defaults to current user) |
+| `agent_get` | Get agent (contributor) information | `agentId` |
+
+**Implementation:**
+- Add user history and agent methods to `FamilySearchClient`
+- Expected effort: Small
+
+---
+
 ## API Endpoint Coverage Matrix
 
 This matrix maps FamilySearch API endpoints to current and planned tool coverage.
+
+### Family Tree Endpoints — Persons
 
 | API Endpoint | Method | Current Tool | Planned Tool | Phase |
 |---|---|---|---|---|
@@ -677,48 +1261,173 @@ This matrix maps FamilySearch API endpoints to current and planned tool coverage
 | `/tree/persons/{pid}` | POST | — | `person_update` | 1.2 |
 | `/tree/persons/{pid}` | DELETE | — | `person_delete` | 1.2 |
 | `/tree/persons?pids=...` | GET | — | `persons_batch_get` | 2.3 |
+| `/tree/current-person` | GET | — | `user_tree_person` | 1.5 |
+| `/tree/persons/{pid}/restore` | POST | — | `person_restore` | 2.5 |
+| `/tree/persons/{pid}/conclusions/{cid}` | DELETE | — | `conclusion_delete` | 2.8 |
+
+### Family Tree Endpoints — Search & Navigation
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/search` | GET | `people_search` ✅ | — | — |
-| `/tree/persons/{pid}/with-relationships` | GET | `families_get` ✅ | — | — |
 | `/tree/ancestry` | GET | — | `ancestry_get` | 1.1 |
 | `/tree/descendancy` | GET | — | `descendancy_get` | 1.1 |
+| `/tree/persons/{pid}/with-relationships` | GET | `families_get` ✅ | — | — |
+
+### Family Tree Endpoints — Relationships
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/tree/relationships` | GET | — | `relationship_find` | 1.6 |
 | `/tree/relationships` | POST | — | `relationship_create_couple` | 1.3 |
 | `/tree/child-and-parents-relationships` | POST | — | `relationship_create_parent_child` | 1.3 |
 | `/tree/couple-relationships/{rid}` | DELETE | — | `relationship_delete` | 1.3 |
 | `/tree/child-and-parents-relationships/{rid}` | DELETE | — | `relationship_delete` | 1.3 |
+| `/tree/couple-relationships/{rid}/restore` | POST | — | `relationship_restore` | 2.5 |
+| `/tree/child-and-parents-relationships/{rid}/restore` | POST | — | `relationship_restore` | 2.5 |
+| `/tree/persons/{pid}/preferred-parent-relationship` | GET/PUT/DELETE | — | `preferred_parent_get/set` | 2.7 |
+| `/tree/persons/{pid}/preferred-spouse-relationship` | GET/PUT/DELETE | — | `preferred_spouse_get/set` | 2.7 |
+
+### Family Tree Endpoints — Change History
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/persons/{pid}/change-history` | GET | — | `change_history_person` | 2.1 |
 | `/tree/couple-relationships/{rid}/change-history` | GET | — | `change_history_relationship` | 2.1 |
+| `/tree/child-and-parents-relationships/{rid}/change-history` | GET | — | `change_history_relationship` | 2.1 |
+| `/tree/changes/{changeId}/restore` | POST | — | `change_restore` | 2.5 |
+
+### Family Tree Endpoints — Notes
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/persons/{pid}/notes` | GET | — | `notes_get` | 2.2 |
 | `/tree/persons/{pid}/notes` | POST | — | `note_create` | 2.2 |
 | `/tree/persons/{pid}/notes/{nid}` | PUT | — | `note_update` | 2.2 |
 | `/tree/persons/{pid}/notes/{nid}` | DELETE | — | `note_delete` | 2.2 |
+| `/tree/couple-relationships/{rid}/notes` | GET/POST | — | `relationship_notes_get/note_create` | 3.3c |
+| `/tree/child-and-parents-relationships/{rid}/notes` | GET/POST | — | `relationship_notes_get/note_create` | 3.3c |
+
+### Family Tree Endpoints — Sources
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/persons/{pid}/sources` | GET | `sources_get` ✅ | — | — |
 | `/tree/persons/{pid}/sources` | POST | `source_attach` ✅ | — | — |
 | `/tree/persons/{pid}/sources/{sid}` | DELETE | `source_detach` ✅ | — | — |
 | `/sources/descriptions/{sid}` | GET | — | `source_description_get` | 3.3 |
 | `/sources/descriptions` | POST | — | `source_description_create` | 3.3 |
-| `/sources/descriptions/{sid}` | PUT | — | `source_description_update` | 3.3 |
-| `/records/search` | GET | `records_search` ✅ | — | — |
-| `/memories/search` | GET | `memories_search` ✅ | — | — |
-| `/memories` | POST | `memory_upload` ✅ | — | — |
-| `/memories/{mid}` | GET | — | `memory_get` | 3.4 |
-| `/memories/{mid}` | DELETE | — | `memory_delete` | 3.4 |
-| `/tree/persons/{pid}/memory-references` | POST | — | `memory_attach` | 3.4 |
-| `/tree/persons/{pid}/memory-references/{rid}` | DELETE | — | `memory_detach` | 3.4 |
-| `/tree/persons/{pid}/matches` | GET | — | `hints_get` | 6.1 |
+| `/sources/descriptions/{sid}` | POST | — | `source_description_update` | 3.3 |
+| `/sources/descriptions/{sid}` | DELETE | — | `source_description_delete` | 3.3a |
+| `/sources/descriptions/{sid}/changes` | POST | — | `source_description_changes` | 3.3a |
+| `/tree/couple-relationships/{rid}/source-references` | GET/POST/DELETE | — | `relationship_sources_*` | 3.3b |
+| `/tree/child-and-parents-relationships/{rid}/source-references` | GET/POST/DELETE | — | `relationship_sources_*` | 3.3b |
+| `/tree/source-folders` | GET/POST | — | `source_folders_*` | 3.3d |
+| `/tree/source-folders/{fid}` | GET/POST/DELETE | — | `source_folder_*` | 3.3d |
+
+### Family Tree Endpoints — Matches & Merges
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/tree/persons/{pid}/matches` | GET | — | `matches_get` | 2.6 |
+| `/tree/persons/{pid}/matches/{mid}` | POST | — | `match_resolve` | 2.6 |
+| `/tree/persons/{pid}/not-a-matches` | GET/POST | — | `not_a_match_create` | 2.6 |
+| `/tree/persons/{pid}/not-a-matches/{did}` | DELETE | — | `not_a_match_delete` | 2.6 |
 | `/tree/persons/{pid}/merges/{did}` | POST | — | `person_merge` | 2.4 |
-| `/tree/persons/{pid}/ordinances` | GET | — | `ordinances_get` | 6.2 |
+
+### Family Tree Endpoints — Discussions & Portraits
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/persons/{pid}/discussion-references` | GET | — | `discussions_get` | 3.2 |
 | `/discussions` | POST | — | `discussion_create` | 3.2 |
-| `/discussions/{did}/comments` | POST | — | `discussion_comment` | 3.2 |
+| `/discussions/{did}` | GET/POST | — | `discussion_read/update` | 3.2 |
+| `/discussions/{did}/comments` | GET/POST | — | `discussion_comment` | 3.2 |
+| `/discussions/{did}/comments/{cid}` | DELETE | — | `discussion_comment_delete` | 3.2 |
+| `/tree/persons/{pid}/portrait` | GET/DELETE | — | `portrait_get/delete` | 8.1 |
+| `/tree/persons/{pid}/portraits` | GET/POST | — | `portraits_list/set` | 8.1 |
+
+### Records & Search
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/records/search` | GET | `records_search` ✅ | — | — |
+| `/collections` | GET | — | `collections_list` | 6.5 |
+| `/collections/{cid}` | GET | — | `collection_get` | 6.5 |
+
+### Memories Endpoints
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/memories/search` | GET | `memories_search` ✅ | — | — |
+| `/memories` | GET/POST | `memory_upload` ✅ | `memories_list` | 8.5 |
+| `/memories/{mid}` | GET | — | `memory_get` | 3.4 |
+| `/memories/{mid}` | POST | — | `memory_update` | 8.5 |
+| `/memories/{mid}` | DELETE | — | `memory_delete` | 3.4 |
+| `/memories/users/{uid}` | GET | — | `memories_user` | 8.5 |
+| `/tree/persons/{pid}/memory-references` | POST | — | `memory_attach` | 3.4 |
+| `/tree/persons/{pid}/memory-references/{rid}` | DELETE | — | `memory_detach` | 3.4 |
+| `/memories/{mid}/personas` | GET/POST | — | `memory_personas_list/create` | 8.2 |
+| `/memories/{mid}/personas/{pid}` | GET/POST/DELETE | — | `memory_persona_*` | 8.2 |
+| `/memories/{mid}/comments` | GET/POST | — | `memory_comments_get/create` | 8.3 |
+| `/memories/{mid}/comments/{cid}` | DELETE | — | `memory_comment_delete` | 8.3 |
+| `/memories/{mid}/artifacts/{aid}` | POST | — | `memory_artifact_update` | 8.4 |
+
+### Standards Endpoints
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/dates` | GET | — | `date_standardize` | 6.3 |
 | `/places/search` | GET | — | `place_search` | 3.1 |
 | `/places/{placeId}` | GET | — | `place_get` | 3.1 |
 | `/places/{placeId}/children` | GET | — | `place_children` | 3.1 |
-| `/dates` | GET | — | `date_standardize` | 6.3 |
-| `/collections` | GET | — | `collections_list` | 6.5 |
-| `/collections/{cid}` | GET | — | `collection_get` | 6.5 |
+| `/places/{placeId}/descriptions` | GET | — | `place_description` | 10.1 |
+| `/places/types` | GET | — | `place_types` | 10.1 |
+| `/places/type-groups` | GET | — | `place_type_groups` | 10.1 |
+| `/names/script` | GET | — | `name_script` | 10.2 |
+| `/names/segments` | GET/POST | — | `name_segment/compose` | 10.2 |
+| `/vocabularies/search` | GET | — | `vocabulary_search` | 10.3 |
+| `/vocabularies/{tid}` | GET | — | `vocabulary_term` | 10.3 |
+| `/vocabularies/lists/{lid}` | GET | — | `vocabulary_list` | 10.3 |
+
+### User Endpoints
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/users/current` | GET | — | `user_current` | 1.4 |
+| `/users/{uid}/history` | GET/POST/DELETE | — | `user_history` | 10.4 |
+| `/agents/{aid}` | GET | — | `agent_get` | 10.4 |
+
+### User Tree Endpoints
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/tree/trees/current` | GET/POST | — | `tree_current/set_current` | 9.1 |
+| `/tree/trees/{tid}` | GET/POST/DELETE | — | `tree_get/update/delete` | 9.1 |
+| `/tree/trees` | POST | — | `tree_create` | 9.1 |
+| `/tree/trees/{tid}/persons` | GET | — | `tree_persons` | 9.1 |
+| `/tree/trees/{tid}/matches` | GET | — | `tree_matches` | 9.1 |
+| `/tree/trees/{tid}/changes` | GET | — | `tree_changes` | 9.1 |
+| `/tree/groups` | GET/POST | — | `groups_list/create` | 9.2 |
+| `/tree/groups/{gid}` | GET/POST/DELETE | — | `group_get/update/delete` | 9.2 |
+
+### Genealogies Endpoints
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
+| `/genealogies/trees` | GET/POST | — | `genealogy_trees_list/create` | 9.3 |
+| `/genealogies/trees/{tid}` | GET/POST/DELETE | — | `genealogy_tree_get/update/delete` | 9.3 |
+| `/genealogies/trees/{tid}/persons` | GET/POST | — | `genealogy_person_*` | 9.3 |
+| `/genealogies/trees/{tid}/persons/{pid}` | GET/POST/DELETE | — | `genealogy_person_*` | 9.3 |
+| `/genealogies/trees/{tid}/matches` | GET | — | `genealogy_matches_get` | 9.3 |
+
+### GEDCOM & Utilities
+
+| API Endpoint | Method | Current Tool | Planned Tool | Phase |
+|---|---|---|---|---|
 | `/tree/gedcomx` | POST | `gedcom_import` ✅ | — | — |
 | `/tree/persons/{pid}/gedcomx` | GET | `gedcom_export` ✅ | — | — |
+| `/tree/persons/{pid}/ordinances` | GET | — | `ordinances_get` | 6.2 |
 | `/` (health) | GET | `healthcheck` ✅ | — | — |
 
 ---
@@ -765,15 +1474,20 @@ For each new tool, the following files need to be updated:
 | Phase | New Tools | Running Total |
 |-------|-----------|---------------|
 | Current (with visualization) | — | 27 |
-| Phase 1 | 8 | 35 |
-| Phase 2 | 8 | 43 |
-| Phase 3 | 13 | 56 |
-| Phase 4 | 0 (infrastructure) | 56 |
-| Phase 5 | 0 (infrastructure) | 56 |
-| Phase 6 | 7 | 63 |
-| Phase 7 | 0 (infrastructure) | 63 |
+| Phase 1 (Core API Gap Closure) | 10 | 37 |
+| Phase 2 (Extended Tree Operations) | 20 | 57 |
+| Phase 3 (Collaboration & Metadata) | 31 | 88 |
+| Phase 4 (Infrastructure) | 0 (infrastructure) | 88 |
+| Phase 5 (Auth & Authorization) | 0 (infrastructure) | 88 |
+| Phase 6 (Advanced Research) | 7 | 95 |
+| Phase 7 (Developer Experience) | 0 (infrastructure) | 95 |
+| Phase 8 (Portraits, Media & User Content) | 16 | 111 |
+| Phase 9 (User Trees, Groups & Genealogies) | 23 | 134 |
+| Phase 10 (Standards, Vocabularies & Names) | 13 | 147 |
 
-**Target: ~63 tools** covering the full FamilySearch API surface, up from the current 27.
+**Target: ~147 tools** covering the full FamilySearch API surface, up from the current 27.
+
+> **Note:** The estimate above includes every documented FamilySearch API endpoint. In practice, many endpoints are low-priority or niche. A practical "full coverage" target of **~95 tools** (Phases 1-7) covers all frequently-used API capabilities. Phases 8-10 represent exhaustive completeness.
 
 ---
 
@@ -818,9 +1532,9 @@ Added `COPILOT_MCP_` prefixed environment variable support for GitHub Copilot co
 
 | Priority | Phases | Key Deliverables |
 |----------|--------|-----------------|
-| 🔴 **High** | 1, 4, 5 | Ancestry/pedigree, person CRUD, relationship management, OAuth, rate limiting, error handling |
-| 🟡 **Medium** | 2, 3 | Change history, notes, batch ops, places, discussions, source descriptions, memory management |
-| 🟢 **Lower** | 6, 7 | Server-side hints, ordinances, date standardization, Docker, linting, telemetry |
+| 🔴 **High** | 1, 4, 5 | Ancestry/pedigree, person CRUD, relationship management, find relationship, current user/tree person, OAuth, rate limiting, error handling |
+| 🟡 **Medium** | 2, 3 | Change history, notes, batch ops, restore operations, match management, preferred relationships, conclusion management, places, discussions (full CRUD), source descriptions (full lifecycle), relationship-level sources/notes, source box/folders, memory management |
+| 🟢 **Lower** | 6, 7, 8, 9, 10 | Server-side hints, ordinances, date standardization, maternal research plan, collections, Docker, linting, telemetry, portraits, memory personas/comments/artifacts, user trees, groups, genealogies, extended place authority, name services, vocabularies, user history |
 
 ---
 

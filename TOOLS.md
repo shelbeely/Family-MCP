@@ -1,6 +1,6 @@
 # Tools Reference
 
-Complete reference for all 24 tools available in the FamilySearch MCP server.
+Complete reference for all 27 tools available in the FamilySearch MCP server.
 
 ## Person Tools
 
