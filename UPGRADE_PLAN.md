@@ -476,7 +476,7 @@ These upgrades address the most impactful missing capabilities — features that
 - `GET /platform/tree/persons/{personId}/discussion-references` — Get discussions for a person
 - `POST /platform/discussions` — Create a discussion
 - `GET /platform/discussions/{discussionId}` — Read a discussion
-- `POST /platform/discussions/{discussionId}` — Update a discussion
+- `POST /platform/discussions/{discussionId}` — Update a discussion *(FamilySearch uses POST for updates)*
 - `GET /platform/discussions/{discussionId}/comments` — Read comments
 - `POST /platform/discussions/{discussionId}/comments` — Add a comment
 - `DELETE /platform/discussions/{discussionId}/comments/{commentId}` — Delete a comment
@@ -528,7 +528,7 @@ These upgrades address the most impactful missing capabilities — features that
 
 **FamilySearch API Endpoints:**
 - `DELETE /platform/sources/descriptions/{sourceId}` — Delete a source description
-- `POST /platform/sources/descriptions/{sourceId}/changes` — Get source description change history
+- `POST /platform/sources/descriptions/{sourceId}/changes` — Get source description change history *(FamilySearch uses POST for this read operation)*
 
 **New Tools:**
 
@@ -1111,12 +1111,25 @@ These improvements address non-functional requirements critical for production u
 **Gap:** The Genealogies API is an entirely separate tree system for personal/imported genealogies. Not covered at all.
 
 **FamilySearch API Endpoints:**
-- **Trees:** `GET/POST/PUT/DELETE /platform/genealogies/trees/*` — CRUD for genealogy trees
-- **Persons:** `GET/POST/PUT/DELETE /platform/genealogies/trees/{treeId}/persons/*` — CRUD for persons within a genealogy tree
-- **Relationships:** `POST/DELETE /platform/genealogies/trees/{treeId}/relationships/*` — Manage relationships
-- **Sources:** `GET/POST/PUT/DELETE /platform/genealogies/trees/{treeId}/sources/*` — Source descriptions within genealogy trees
+- **Trees:** `GET /platform/genealogies/trees` — List genealogy trees
+- **Trees:** `POST /platform/genealogies/trees` — Create a genealogy tree
+- **Trees:** `GET /platform/genealogies/trees/{treeId}` — Read a genealogy tree
+- **Trees:** `POST /platform/genealogies/trees/{treeId}` — Update a genealogy tree
+- **Trees:** `DELETE /platform/genealogies/trees/{treeId}` — Delete a genealogy tree
+- **Persons:** `GET /platform/genealogies/trees/{treeId}/persons` — List persons in a tree
+- **Persons:** `POST /platform/genealogies/trees/{treeId}/persons` — Create a person
+- **Persons:** `GET /platform/genealogies/trees/{treeId}/persons/{personId}` — Read a person
+- **Persons:** `POST /platform/genealogies/trees/{treeId}/persons/{personId}` — Update a person
+- **Persons:** `DELETE /platform/genealogies/trees/{treeId}/persons/{personId}` — Delete a person
+- **Relationships:** `POST /platform/genealogies/trees/{treeId}/relationships/{relationshipId}` — Update relationship
+- **Relationships:** `DELETE /platform/genealogies/trees/{treeId}/relationships/{relationshipId}` — Delete relationship
+- **Sources:** `GET /platform/genealogies/trees/{treeId}/sources/{sourceId}` — Read source description
+- **Sources:** `POST /platform/genealogies/trees/{treeId}/sources` — Create source description
+- **Sources:** `POST /platform/genealogies/trees/{treeId}/sources/{sourceId}` — Update source description
+- **Sources:** `DELETE /platform/genealogies/trees/{treeId}/sources/{sourceId}` — Delete source description
 - **Notes:** `GET /platform/genealogies/trees/{treeId}/persons/{personId}/notes/{noteId}` — Read notes
-- **Matches:** `GET /platform/genealogies/trees/{treeId}/matches`, `GET /platform/genealogies/trees/{treeId}/persons/{personId}/matches` — Tree and person-level matching
+- **Matches:** `GET /platform/genealogies/trees/{treeId}/matches` — Tree-level matching
+- **Matches:** `GET /platform/genealogies/trees/{treeId}/persons/{personId}/matches` — Person-level matching
 
 **New Tools:**
 
@@ -1452,6 +1465,13 @@ For each new tool, the following files need to be updated:
 - Tool names: `resource_action` format (e.g., `person_create`, `notes_get`)
 - Schema names: `PascalCase` + `Schema` suffix (e.g., `PersonCreateSchema`)
 - Client methods: `camelCase` (e.g., `createPerson()`)
+
+### FamilySearch API Conventions
+
+> **Note:** The FamilySearch API uses non-standard HTTP methods in some cases:
+> - **POST for updates**: Many update operations use POST instead of PUT/PATCH (e.g., Update Discussion, Update Person)
+> - **POST for reads**: Some read operations use POST (e.g., Get Source Description Changes, Person Matches by Example)
+> - Always refer to the [official API documentation](https://developers.familysearch.org/) for the correct HTTP method for each endpoint.
 
 ### Safety Guidelines for Write Operations
 
