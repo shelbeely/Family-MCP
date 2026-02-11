@@ -116,9 +116,23 @@ Add secrets with the `COPILOT_MCP_` prefix in your repository's **Settings → C
 
 See [CONFIGURATION.md](./CONFIGURATION.md) for full setup details.
 
+## 🤖 Custom Agents
+
+The repository includes custom agents (`.github/agents/`) for specialized genealogy tasks with GitHub Copilot:
+
+| Agent | Description |
+|-------|-------------|
+| **Family Investigator** | Detective-style genealogy research — gathers evidence, traces lineages, resolves mysteries, presents investigation reports |
+| **Family Tree Visualizer** | Visualization specialist — generates Mermaid charts, Excalidraw drawings, and visual family tree representations |
+| **Genealogy Planner** | Research planner — creates structured research plans with prioritized tasks, methodology, and record suggestions |
+
+Select a custom agent from the agents dropdown in GitHub Copilot or assign it to an issue. See [GitHub Copilot custom agents docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents#using-custom-agents) for usage details.
+
+An **agent skill** (`.github/copilot/skills/family-mcp/SKILL.md`) is also available, providing tool reference knowledge to any agent working with this repository.
+
 ## 📚 Documentation
 
-- **[TOOLS.md](./TOOLS.md)** - Complete reference for all 24 tools
+- **[TOOLS.md](./TOOLS.md)** - Complete reference for all 27 tools
 - **[EXAMPLES.md](./EXAMPLES.md)** - Usage examples and recipes
 - **[CONFIGURATION.md](./CONFIGURATION.md)** - Configuration guide
 - **[LICENSE](./LICENSE)** - MIT License
@@ -147,6 +161,14 @@ node test/basic-test.js
 
 ```
 Family-MCP/
+├── .github/
+│   ├── agents/               # Custom agents for GitHub Copilot
+│   │   ├── family-investigator.agent.md
+│   │   ├── family-tree-visualizer.agent.md
+│   │   └── genealogy-planner.agent.md
+│   └── copilot/
+│       └── skills/           # Agent skills
+│           └── family-mcp/SKILL.md
 ├── src/
 │   ├── index.ts              # Main MCP server (stdio)
 │   ├── http-server.ts        # HTTP/SSE server
@@ -157,7 +179,6 @@ Family-MCP/
 │   └── visualization.ts     # Chart & drawing generation
 ├── dist/                     # Compiled JavaScript
 ├── test/                     # Tests
-├── .github/copilot/skills/  # Agent skills
 ├── TOOLS.md                  # Tool reference
 ├── EXAMPLES.md               # Usage examples
 ├── CONFIGURATION.md          # Configuration guide

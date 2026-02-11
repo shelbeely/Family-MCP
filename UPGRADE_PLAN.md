@@ -796,6 +796,18 @@ These tools generate visualization data that can be rendered by external MCP ser
 
 Added `.github/copilot/skills/family-mcp/SKILL.md` for GitHub Copilot and other AI coding agents. The skill provides comprehensive guidance on all 27 tools, visualization capabilities, common workflows, and configuration.
 
+### ✅ Custom Agents (Implemented)
+
+Added 3 custom agents in `.github/agents/` following the [GitHub Copilot custom agents specification](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/create-custom-agents):
+
+| Agent | File | Description |
+|-------|------|-------------|
+| **Family Investigator** | `family-investigator.agent.md` | Detective-style genealogy research with investigation reports, evidence gathering, and lineage tracing |
+| **Family Tree Visualizer** | `family-tree-visualizer.agent.md` | Specialist in Mermaid charts and Excalidraw drawings for family tree visualization |
+| **Genealogy Planner** | `genealogy-planner.agent.md` | Structured research plans with prioritized tasks, methodology guidance, and record suggestions |
+
+Custom agents use the `.agent.md` format with YAML frontmatter for `name`, `description`, and `tools` configuration. They are available via the agents dropdown in GitHub Copilot or can be assigned to issues.
+
 ### ✅ Copilot Coding Agent Compatibility (Implemented)
 
 Added `COPILOT_MCP_` prefixed environment variable support for GitHub Copilot coding agent compatibility.
