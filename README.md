@@ -2,52 +2,39 @@
 
 A comprehensive Model Context Protocol (MCP) server for FamilySearch.org integration. This server provides AI assistants with access to genealogical data, family tree information, and research tools from FamilySearch.
 
-## Features
+## 🌟 Features
 
-### Person & Family Tools
-- **person_get** - Get detailed information about a specific person
-- **people_search** - Search for people in the Family Tree
-- **families_get** - Get all family relationships for a person
-- **parents_get** - Get parents of a person
-- **children_get** - Get children of a person
-- **spouses_get** - Get spouses of a person
+### 24 Powerful Tools
 
-### Sources & Records
-- **sources_get** - Get sources attached to a person
-- **source_attach** - Attach a source to a person
-- **source_detach** - Detach a source from a person
-- **records_search** - Search historical records
+- **Person & Family Tools** - Get person details, search people, retrieve parents, children, spouses, and full family relationships
+- **Sources & Records** - Search historical records, manage source attachments
+- **Memories** - Search and upload photos, stories, and documents
+- **GEDCOM** - Import and export GEDCOM genealogy data
+- **AI-Powered Research** - Generate hints, suggest merges, explain matches, rank research priorities
+- **Research Planning** - Create structured research plans (e.g., paternal line research)
+- **Utilities** - Cache management, health checks
 
-### Memories
-- **memories_search** - Search memories
-- **memory_upload** - Upload a memory
+See [TOOLS.md](./TOOLS.md) for complete tool reference.
 
-### GEDCOM
-- **gedcom_import** - Import GEDCOM data
-- **gedcom_export** - Export person data as GEDCOM
+### Security & Performance
 
-### AI-Powered Tools
-- **hints_generate** - Generate research hints for a person
-- **merges_suggest** - Suggest potential duplicate persons for merging
-- **match_explain_llm** - Use LLM to explain why two persons might match
-- **hints_rank_llm** - Use LLM to rank research hints by relevance
-- **timeline_summary_llm** - Generate an LLM-powered timeline summary
-- **father_side_plan** - Generate a research plan for the paternal side
+- **Encrypted Token Storage** - AES-256-GCM encryption for access tokens
+- **Built-in Caching** - Reduces API calls and improves performance
+- **Zod Schema Validation** - Type-safe input validation
+- **Multiple Transports** - Support for both stdio and HTTP/SSE
 
-### Utility Tools
-- **cache_get** - Get cached data
-- **cache_clear** - Clear the cache
-- **healthcheck** - Check API connection health
+## 📋 Quick Start
 
-## Installation
+### Installation
 
 ```bash
+git clone https://github.com/shelbeely/Family-MCP.git
+cd Family-MCP
 npm install
+npm run build
 ```
 
-## Configuration
-
-### Authentication
+### Configuration
 
 Set your FamilySearch access token:
 
@@ -55,34 +42,34 @@ Set your FamilySearch access token:
 export FAMILYSEARCH_TOKEN="your-access-token-here"
 ```
 
-Or the token will be loaded from an encrypted token store at `~/.family-mcp-tokens`.
-
-### Optional: Set encryption password
+Optional encryption password:
 
 ```bash
 export FAMILY_MCP_PASSWORD="your-secure-password"
 ```
 
-## Usage
+See [CONFIGURATION.md](./CONFIGURATION.md) for all configuration options.
 
-### Stdio Transport (for MCP clients)
+### Running
 
+**Stdio mode (for MCP clients):**
 ```bash
 npm start
 ```
 
-Or run directly:
-
+**HTTP mode (for web apps):**
 ```bash
-node dist/index.js
+npm run start:http
+# Server starts on http://localhost:3000
 ```
 
-### Using with Claude Desktop
+## 🔧 Usage
 
-Add to your Claude Desktop configuration file:
+### With Claude Desktop
+
+Add to your Claude Desktop configuration:
 
 **MacOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
 ```json
 {
@@ -98,7 +85,24 @@ Add to your Claude Desktop configuration file:
 }
 ```
 
-## Development
+Then ask Claude:
+- "Search FamilySearch for John Smith born in 1850"
+- "Get the parents of person KWQS-BBQ"
+- "Generate a timeline for person KWQS-BBQ"
+- "Find potential duplicates for this person"
+
+### With Other MCP Clients
+
+The server works with any MCP-compatible client that supports stdio or HTTP transport.
+
+## 📚 Documentation
+
+- **[TOOLS.md](./TOOLS.md)** - Complete reference for all 24 tools
+- **[EXAMPLES.md](./EXAMPLES.md)** - Usage examples and recipes
+- **[CONFIGURATION.md](./CONFIGURATION.md)** - Configuration guide
+- **[LICENSE](./LICENSE)** - MIT License
+
+## 🛠️ Development
 
 ### Build
 
@@ -112,97 +116,82 @@ npm run build
 npm run dev
 ```
 
-## Architecture
+### Run tests
 
-### Components
+```bash
+node test/basic-test.js
+```
 
-- **index.ts** - Main MCP server implementation with all tool handlers
-- **familysearch-client.ts** - FamilySearch API client wrapper with caching
-- **token-store.ts** - Encrypted token storage using AES-256-GCM
-- **schemas.ts** - Zod schemas for input validation
+## 📦 Project Structure
 
-### Security Features
+```
+Family-MCP/
+├── src/
+│   ├── index.ts              # Main MCP server (stdio)
+│   ├── http-server.ts        # HTTP/SSE server
+│   ├── familysearch-client.ts # FamilySearch API wrapper
+│   ├── token-store.ts        # Encrypted token storage
+│   └── schemas.ts            # Zod validation schemas
+├── dist/                     # Compiled JavaScript
+├── test/                     # Tests
+├── TOOLS.md                  # Tool reference
+├── EXAMPLES.md               # Usage examples
+├── CONFIGURATION.md          # Configuration guide
+└── README.md                 # This file
+```
 
-- **Encrypted Token Storage** - Access tokens are encrypted using AES-256-GCM with scrypt key derivation
-- **Secure Defaults** - HTTPS-only API communication
-- **Input Validation** - All inputs validated using Zod schemas
+## 🔐 Security
 
-### Caching
+- **Encrypted Storage**: Tokens encrypted with AES-256-GCM
+- **No Token Exposure**: Tokens never logged or exposed in errors
+- **HTTPS Only**: All API communication over HTTPS
+- **Input Validation**: All inputs validated with Zod schemas
 
-The server includes built-in caching with configurable timeout (default 5 minutes) to reduce API calls and improve performance.
-
-## API Access
+## 🌐 API Access
 
 To get a FamilySearch access token:
 
-1. Register your application at [FamilySearch Developers](https://www.familysearch.org/developers/)
-2. Obtain OAuth credentials
-3. Use the OAuth flow to get an access token
-4. Set the token in your environment or save it using the encrypted token store
+1. Register at [FamilySearch Developers](https://www.familysearch.org/developers/)
+2. Create an application
+3. Use OAuth flow to get an access token
+4. Set token in environment or encrypted storage
 
-## Tools Reference
+## 🚀 Tools Overview
 
-### person_get
+| Category | Tools |
+|----------|-------|
+| **Person** | person_get, people_search |
+| **Family** | families_get, parents_get, children_get, spouses_get |
+| **Sources** | sources_get, source_attach, source_detach |
+| **Records** | records_search |
+| **Memories** | memories_search, memory_upload |
+| **GEDCOM** | gedcom_import, gedcom_export |
+| **AI Research** | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
+| **Planning** | father_side_plan |
+| **Utility** | cache_get, cache_clear, healthcheck |
 
-Get detailed information about a specific person.
+Total: **24 tools**
 
-```json
-{
-  "personId": "KWQS-BBQ"
-}
-```
+## 🤝 Contributing
 
-### people_search
+Contributions are welcome! Please feel free to submit pull requests.
 
-Search for people in the Family Tree.
+## 📄 License
 
-```json
-{
-  "query": "John Smith",
-  "birthDate": "1850",
-  "birthPlace": "New York"
-}
-```
+MIT License - see [LICENSE](./LICENSE) file for details.
 
-### records_search
+## 💬 Support
 
-Search historical records.
+- **Issues**: [GitHub Issues](https://github.com/shelbeely/Family-MCP/issues)
+- **FamilySearch API**: [API Documentation](https://www.familysearch.org/developers/docs/api/)
+- **MCP Protocol**: [MCP Documentation](https://modelcontextprotocol.io/)
 
-```json
-{
-  "query": "Jane Doe",
-  "birthDate": "1920-01-15",
-  "collection": "census-1940"
-}
-```
+## 🙏 Acknowledgments
 
-### match_explain_llm
+- Built with the [Model Context Protocol SDK](https://github.com/modelcontextprotocol/sdk)
+- Integrates with [FamilySearch.org](https://www.familysearch.org/)
+- Uses [Zod](https://github.com/colinhacks/zod) for validation
 
-Get an AI explanation of why two persons might be the same individual.
+---
 
-```json
-{
-  "personId1": "KWQS-BBQ",
-  "personId2": "L123-456",
-  "context": "Both lived in same county"
-}
-```
-
-### timeline_summary_llm
-
-Generate a narrative timeline for a person's life.
-
-```json
-{
-  "personId": "KWQS-BBQ",
-  "includeRelatives": true
-}
-```
-
-## License
-
-MIT
-
-## Support
-
-For issues and questions, please visit the [GitHub repository](https://github.com/shelbeely/Family-MCP).
+**Note**: This is an unofficial project and is not affiliated with or endorsed by FamilySearch International.
