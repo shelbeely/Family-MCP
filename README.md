@@ -4,14 +4,30 @@ A comprehensive Model Context Protocol (MCP) server for FamilySearch.org integra
 
 ## 🌟 Features
 
-### 27 Powerful Tools
+### 95 Powerful Tools across 17 Categories
 
 - **Person & Family Tools** - Get person details, search people, retrieve parents, children, spouses, and full family relationships
-- **Sources & Records** - Search historical records, manage source attachments
-- **Memories** - Search and upload photos, stories, and documents
+- **Ancestry & Pedigree** - Multi-generation ancestor and descendant navigation
+- **Person CRUD** - Create, update, and delete person records
+- **Relationship Management** - Create couple/parent-child relationships, delete relationships, find relationship paths
+- **User & Session** - Current user info, default tree person
+- **Sources & Records** - Search historical records, manage source attachments, full source description lifecycle
+- **Source Folders** - Organize sources into folders with full CRUD operations
+- **Relationship Sources & Notes** - Attach/detach sources and notes at the relationship level
+- **Memories & Memory Management** - Search, upload, get, delete, attach, and detach memories
 - **GEDCOM** - Import and export GEDCOM genealogy data
+- **Change History & Restore** - Track changes to persons and relationships, restore previous states
+- **Notes** - Full CRUD for person notes
+- **Batch & Merge** - Batch person retrieval, merge duplicate records
+- **Match Management** - Get matches, resolve duplicates, manage not-a-match declarations
+- **Preferred Relationships** - Get/set preferred parents and spouses
+- **Place Authority** - Search places, get place details and subdivisions
+- **Discussions** - Full CRUD for discussion threads and comments
 - **AI-Powered Research** - Generate hints, suggest merges, explain matches, rank research priorities
-- **Research Planning** - Create structured research plans (e.g., paternal line research)
+- **Research Planning** - Create structured research plans for paternal and maternal lines
+- **Record Hints & Ordinances** - Server-generated hints, ordinance status
+- **Date Standardization** - Standardize date strings via FamilySearch authority
+- **Collections** - Browse and search FamilySearch record collections
 - **Visualization** - Generate Mermaid charts and Excalidraw drawings of family trees, timelines, and pedigrees
 - **Utilities** - Cache management, health checks
 
@@ -132,7 +148,7 @@ An **agent skill** (`.github/copilot/skills/family-mcp/SKILL.md`) is also availa
 
 ## 📚 Documentation
 
-- **[TOOLS.md](./TOOLS.md)** - Complete reference for all 27 tools
+- **[TOOLS.md](./TOOLS.md)** - Complete reference for all 95 tools
 - **[EXAMPLES.md](./EXAMPLES.md)** - Usage examples and recipes
 - **[CONFIGURATION.md](./CONFIGURATION.md)** - Configuration guide
 - **[LICENSE](./LICENSE)** - MIT License
@@ -210,16 +226,36 @@ To get a FamilySearch access token:
 |----------|-------|
 | **Person** | person_get, people_search |
 | **Family** | families_get, parents_get, children_get, spouses_get |
+| **Ancestry & Pedigree** | ancestry_get, descendancy_get |
+| **Person CRUD** | person_create, person_update, person_delete |
+| **Relationship Management** | relationship_create_couple, relationship_create_parent_child, relationship_delete, relationship_find |
+| **User & Session** | user_current, user_tree_person |
 | **Sources** | sources_get, source_attach, source_detach |
+| **Source Descriptions** | source_description_get, source_description_create, source_description_update, source_description_delete, source_description_changes |
+| **Source Folders** | source_folders_list, source_folder_create, source_folder_get, source_folder_update, source_folder_delete, source_folder_add, source_folder_remove |
+| **Relationship Sources & Notes** | relationship_sources_get, relationship_source_attach, relationship_source_detach, relationship_notes_get, relationship_note_create, relationship_note_delete |
 | **Records** | records_search |
 | **Memories** | memories_search, memory_upload |
+| **Memory Management** | memory_get, memory_delete, memory_attach, memory_detach |
 | **GEDCOM** | gedcom_import, gedcom_export |
+| **Change History** | change_history_person, change_history_relationship |
+| **Notes** | notes_get, note_create, note_update, note_delete |
+| **Batch & Merge** | persons_batch_get, person_merge |
+| **Restore** | person_restore, relationship_restore, change_restore |
+| **Match Management** | matches_get, match_resolve, not_a_match_create, not_a_match_delete |
+| **Preferred Relationships** | preferred_parent_get, preferred_parent_set, preferred_spouse_get, preferred_spouse_set |
+| **Conclusion Management** | conclusion_delete |
+| **Place Authority** | place_search, place_get, place_children |
+| **Discussions** | discussions_get, discussion_read, discussion_create, discussion_update, discussion_comment, discussion_comment_delete |
 | **AI Research** | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
-| **Planning** | father_side_plan |
+| **Planning** | father_side_plan, mother_side_plan |
+| **Record Hints & Ordinances** | hints_get, ordinances_get |
+| **Date & Standardization** | date_standardize |
+| **Collections** | collections_list, collection_get |
 | **Visualization** | family_tree_chart, timeline_chart, pedigree_chart, family_tree_drawing |
 | **Utility** | cache_get, cache_clear, healthcheck |
 
-Total: **27 tools**
+Total: **95 tools** across 17 categories
 
 ## 📊 Visualization & Charts
 

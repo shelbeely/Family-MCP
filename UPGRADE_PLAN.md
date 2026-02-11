@@ -1528,7 +1528,7 @@ These tools generate visualization data that can be rendered by external MCP ser
 
 ### ✅ Agents Skill (Implemented)
 
-Added `.github/copilot/skills/family-mcp/SKILL.md` for GitHub Copilot and other AI coding agents. The skill provides comprehensive guidance on all 27 tools, visualization capabilities, common workflows, and configuration.
+Added `.github/copilot/skills/family-mcp/SKILL.md` for GitHub Copilot and other AI coding agents. The skill provides comprehensive guidance on all 95 tools, visualization capabilities, common workflows, and configuration.
 
 ### ✅ Custom Agents (Implemented)
 

@@ -8,15 +8,35 @@ This project implements a comprehensive Model Context Protocol (MCP) server for 
 
 ### Core Features Implemented
 
-1. **27 Production-Ready Tools** organized in 10 categories:
+1. **95 Production-Ready Tools** organized in 17 categories:
    - Person Management (2 tools)
    - Family Relationships (4 tools)
+   - Ancestry & Pedigree (2 tools)
+   - Person CRUD (3 tools)
+   - Relationship Management (4 tools)
+   - User & Session (2 tools)
    - Sources & Citations (3 tools)
+   - Source Descriptions (5 tools)
+   - Source Folders (7 tools)
+   - Relationship Sources & Notes (6 tools)
    - Historical Records (1 tool)
    - Memories & Media (2 tools)
+   - Memory Management (4 tools)
    - GEDCOM Data Exchange (2 tools)
+   - Change History (2 tools)
+   - Notes (4 tools)
+   - Batch & Merge (2 tools)
+   - Restore (3 tools)
+   - Match Management (4 tools)
+   - Preferred Relationships (4 tools)
+   - Conclusion Management (1 tool)
+   - Place Authority (3 tools)
+   - Discussions (6 tools)
    - AI-Powered Research (5 tools)
-   - Research Planning (1 tool)
+   - Research Planning (2 tools)
+   - Record Hints & Ordinances (2 tools)
+   - Date & Standardization (1 tool)
+   - Collections (2 tools)
    - Visualization (4 tools) — Mermaid charts & Excalidraw drawings
    - Utilities (3 tools)
 
@@ -44,7 +64,7 @@ This project implements a comprehensive Model Context Protocol (MCP) server for 
 
 6. **Documentation**:
    - README.md: Project overview and quickstart (200+ lines)
-   - TOOLS.md: Complete reference for all 24 tools (400+ lines)
+   - TOOLS.md: Complete reference for all 95 tools (2000+ lines)
    - EXAMPLES.md: Usage examples and recipes (250+ lines)
    - CONFIGURATION.md: Configuration guide (250+ lines)
    - LICENSE: MIT license
@@ -114,15 +134,35 @@ npm run dev
 |----------|-------|-------|
 | Person | 2 | person_get, people_search |
 | Family | 4 | families_get, parents_get, children_get, spouses_get |
+| Ancestry & Pedigree | 2 | ancestry_get, descendancy_get |
+| Person CRUD | 3 | person_create, person_update, person_delete |
+| Relationship Management | 4 | relationship_create_couple, relationship_create_parent_child, relationship_delete, relationship_find |
+| User & Session | 2 | user_current, user_tree_person |
 | Sources | 3 | sources_get, source_attach, source_detach |
+| Source Descriptions | 5 | source_description_get, source_description_create, source_description_update, source_description_delete, source_description_changes |
+| Source Folders | 7 | source_folders_list, source_folder_create, source_folder_get, source_folder_update, source_folder_delete, source_folder_add, source_folder_remove |
+| Relationship Sources & Notes | 6 | relationship_sources_get, relationship_source_attach, relationship_source_detach, relationship_notes_get, relationship_note_create, relationship_note_delete |
 | Records | 1 | records_search |
 | Memories | 2 | memories_search, memory_upload |
+| Memory Management | 4 | memory_get, memory_delete, memory_attach, memory_detach |
 | GEDCOM | 2 | gedcom_import, gedcom_export |
+| Change History | 2 | change_history_person, change_history_relationship |
+| Notes | 4 | notes_get, note_create, note_update, note_delete |
+| Batch & Merge | 2 | persons_batch_get, person_merge |
+| Restore | 3 | person_restore, relationship_restore, change_restore |
+| Match Management | 4 | matches_get, match_resolve, not_a_match_create, not_a_match_delete |
+| Preferred Relationships | 4 | preferred_parent_get, preferred_parent_set, preferred_spouse_get, preferred_spouse_set |
+| Conclusion Management | 1 | conclusion_delete |
+| Place Authority | 3 | place_search, place_get, place_children |
+| Discussions | 6 | discussions_get, discussion_read, discussion_create, discussion_update, discussion_comment, discussion_comment_delete |
 | AI Research | 5 | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
-| Planning | 1 | father_side_plan |
+| Planning | 2 | father_side_plan, mother_side_plan |
+| Record Hints & Ordinances | 2 | hints_get, ordinances_get |
+| Date & Standardization | 1 | date_standardize |
+| Collections | 2 | collections_list, collection_get |
 | Visualization | 4 | family_tree_chart, timeline_chart, pedigree_chart, family_tree_drawing |
 | Utility | 3 | cache_get, cache_clear, healthcheck |
-| **Total** | **27** | |
+| **Total** | **95** | |
 
 ## AI-Powered Features
 
