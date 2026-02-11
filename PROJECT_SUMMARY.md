@@ -8,7 +8,7 @@ This project implements a comprehensive Model Context Protocol (MCP) server for 
 
 ### Core Features Implemented
 
-1. **24 Production-Ready Tools** organized in 9 categories:
+1. **27 Production-Ready Tools** organized in 10 categories:
    - Person Management (2 tools)
    - Family Relationships (4 tools)
    - Sources & Citations (3 tools)
@@ -17,6 +17,7 @@ This project implements a comprehensive Model Context Protocol (MCP) server for 
    - GEDCOM Data Exchange (2 tools)
    - AI-Powered Research (5 tools)
    - Research Planning (1 tool)
+   - Visualization (4 tools) — Mermaid charts & Excalidraw drawings
    - Utilities (3 tools)
 
 2. **Dual Transport Support**:
@@ -119,8 +120,9 @@ npm run dev
 | GEDCOM | 2 | gedcom_import, gedcom_export |
 | AI Research | 5 | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
 | Planning | 1 | father_side_plan |
+| Visualization | 4 | family_tree_chart, timeline_chart, pedigree_chart, family_tree_drawing |
 | Utility | 3 | cache_get, cache_clear, healthcheck |
-| **Total** | **24** | |
+| **Total** | **27** | |
 
 ## AI-Powered Features
 

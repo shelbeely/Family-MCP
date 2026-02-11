@@ -2,7 +2,7 @@
 
 > **Master API Reference:** https://developers.familysearch.org/  
 > **API Reference Guide:** https://developers.familysearch.org/main/reference/api-reference-guide  
-> **Current Implementation:** 24 tools across 9 categories
+> **Current Implementation:** 27 tools across 10 categories
 
 This document provides a comprehensive, prioritized upgrade plan for the Family-MCP server. Each section maps directly to FamilySearch API capabilities documented at [developers.familysearch.org](https://developers.familysearch.org/). Items are organized into phases by priority and dependency.
 
@@ -764,16 +764,41 @@ For each new tool, the following files need to be updated:
 
 | Phase | New Tools | Running Total |
 |-------|-----------|---------------|
-| Current | — | 24 |
-| Phase 1 | 8 | 32 |
-| Phase 2 | 8 | 40 |
-| Phase 3 | 13 | 53 |
-| Phase 4 | 0 (infrastructure) | 53 |
-| Phase 5 | 0 (infrastructure) | 53 |
-| Phase 6 | 7 | 60 |
-| Phase 7 | 0 (infrastructure) | 60 |
+| Current (with visualization) | — | 27 |
+| Phase 1 | 8 | 35 |
+| Phase 2 | 8 | 43 |
+| Phase 3 | 13 | 56 |
+| Phase 4 | 0 (infrastructure) | 56 |
+| Phase 5 | 0 (infrastructure) | 56 |
+| Phase 6 | 7 | 63 |
+| Phase 7 | 0 (infrastructure) | 63 |
 
-**Target: ~60 tools** covering the full FamilySearch API surface, up from the current 24.
+**Target: ~63 tools** covering the full FamilySearch API surface, up from the current 27.
+
+---
+
+## Completed Upgrades
+
+### ✅ Visualization Tools (Implemented)
+
+Added 4 visualization tools inspired by [mcp-mermaid](https://github.com/hustcc/mcp-mermaid) and [excalidraw-mcp](https://github.com/excalidraw/excalidraw-mcp):
+
+| Tool | Output | Description |
+|------|--------|-------------|
+| `family_tree_chart` | Mermaid | Flowchart of family relationships with color coding |
+| `timeline_chart` | Mermaid | Life events timeline with optional relatives |
+| `pedigree_chart` | Mermaid | Multi-generational ancestry chart |
+| `family_tree_drawing` | Excalidraw JSON | Interactive drawing with boxes and arrows |
+
+These tools generate visualization data that can be rendered by external MCP servers (mcp-mermaid, excalidraw-mcp) or [MCP Apps](https://modelcontextprotocol.io/docs/extensions/apps) for interactive in-chat rendering.
+
+### ✅ Agents Skill (Implemented)
+
+Added `.github/copilot/skills/family-mcp/SKILL.md` for GitHub Copilot and other AI coding agents. The skill provides comprehensive guidance on all 27 tools, visualization capabilities, common workflows, and configuration.
+
+### ✅ Copilot Coding Agent Compatibility (Implemented)
+
+Added `COPILOT_MCP_` prefixed environment variable support for GitHub Copilot coding agent compatibility.
 
 ---
 

@@ -4,7 +4,7 @@ A comprehensive Model Context Protocol (MCP) server for FamilySearch.org integra
 
 ## 🌟 Features
 
-### 24 Powerful Tools
+### 27 Powerful Tools
 
 - **Person & Family Tools** - Get person details, search people, retrieve parents, children, spouses, and full family relationships
 - **Sources & Records** - Search historical records, manage source attachments
@@ -12,6 +12,7 @@ A comprehensive Model Context Protocol (MCP) server for FamilySearch.org integra
 - **GEDCOM** - Import and export GEDCOM genealogy data
 - **AI-Powered Research** - Generate hints, suggest merges, explain matches, rank research priorities
 - **Research Planning** - Create structured research plans (e.g., paternal line research)
+- **Visualization** - Generate Mermaid charts and Excalidraw drawings of family trees, timelines, and pedigrees
 - **Utilities** - Cache management, health checks
 
 See [TOOLS.md](./TOOLS.md) for complete tool reference.
@@ -151,12 +152,16 @@ Family-MCP/
 │   ├── http-server.ts        # HTTP/SSE server
 │   ├── familysearch-client.ts # FamilySearch API wrapper
 │   ├── token-store.ts        # Encrypted token storage
-│   └── schemas.ts            # Zod validation schemas
+│   ├── tools.ts              # Tool definitions & AI functions
+│   ├── schemas.ts            # Zod validation schemas
+│   └── visualization.ts     # Chart & drawing generation
 ├── dist/                     # Compiled JavaScript
 ├── test/                     # Tests
+├── .github/copilot/skills/  # Agent skills
 ├── TOOLS.md                  # Tool reference
 ├── EXAMPLES.md               # Usage examples
 ├── CONFIGURATION.md          # Configuration guide
+├── UPGRADE_PLAN.md           # Upgrade roadmap
 └── README.md                 # This file
 ```
 
@@ -190,9 +195,28 @@ To get a FamilySearch access token:
 | **GEDCOM** | gedcom_import, gedcom_export |
 | **AI Research** | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
 | **Planning** | father_side_plan |
+| **Visualization** | family_tree_chart, timeline_chart, pedigree_chart, family_tree_drawing |
 | **Utility** | cache_get, cache_clear, healthcheck |
 
-Total: **24 tools**
+Total: **27 tools**
+
+## 📊 Visualization & Charts
+
+Family trees are visualized using two complementary approaches:
+
+### Mermaid Charts
+The `family_tree_chart`, `timeline_chart`, and `pedigree_chart` tools generate [Mermaid](https://mermaid.js.org/) syntax. Render with:
+- [mcp-mermaid](https://github.com/hustcc/mcp-mermaid) — MCP server for PNG/SVG rendering
+- GitHub Markdown — wrap in ` ```mermaid ``` ` code blocks
+- [Mermaid Live Editor](https://mermaid.live) — browser-based rendering
+
+### Excalidraw Drawings
+The `family_tree_drawing` tool generates [Excalidraw](https://excalidraw.com)-compatible JSON. Use with:
+- [excalidraw-mcp](https://github.com/excalidraw/excalidraw-mcp) — MCP App server for interactive rendering
+- [Excalidraw](https://excalidraw.com) — import JSON directly
+- [MCP Apps](https://modelcontextprotocol.io/docs/extensions/apps) — interactive in-chat rendering
+
+These tools are designed to be used alongside external MCP servers (mcp-mermaid, excalidraw-mcp) for rendering. Family-MCP generates the data; rendering servers display it.
 
 ## 🤝 Contributing
 

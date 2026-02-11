@@ -488,6 +488,92 @@ Check the health of the FamilySearch API connection.
 
 ---
 
+## Visualization Tools
+
+These tools generate chart and diagram output inspired by [mcp-mermaid](https://github.com/hustcc/mcp-mermaid) and [excalidraw-mcp](https://github.com/excalidraw/excalidraw-mcp). Output can be rendered by any compatible viewer or composed with those MCP servers.
+
+### family_tree_chart
+
+Generate a Mermaid flowchart of a family tree showing parents, children, and spouses.
+
+**Parameters:**
+- `personId` (string, required) - Root person ID
+- `generations` (number, optional) - Number of generations (default: 3)
+- `direction` (string, optional) - Chart direction: `TB`, `BT`, `LR`, `RL` (default: TB)
+
+**Example:**
+```json
+{
+  "personId": "KWQS-BBQ",
+  "generations": 3,
+  "direction": "TB"
+}
+```
+
+**Returns:** Object with `mermaid` (Mermaid syntax string) and `description`. Render with any Mermaid viewer, GitHub markdown, or mcp-mermaid server.
+
+---
+
+### timeline_chart
+
+Generate a Mermaid timeline diagram of a person's life events.
+
+**Parameters:**
+- `personId` (string, required) - Person ID
+- `includeRelatives` (boolean, optional) - Include marriages and children (default: false)
+
+**Example:**
+```json
+{
+  "personId": "KWQS-BBQ",
+  "includeRelatives": true
+}
+```
+
+**Returns:** Object with `mermaid` (Mermaid timeline syntax) and `description`.
+
+---
+
+### pedigree_chart
+
+Generate a Mermaid pedigree/ancestry chart showing ancestors.
+
+**Parameters:**
+- `personId` (string, required) - Root person ID
+- `generations` (number, optional) - Number of ancestor generations (default: 4)
+
+**Example:**
+```json
+{
+  "personId": "KWQS-BBQ",
+  "generations": 4
+}
+```
+
+**Returns:** Object with `mermaid` (Mermaid bottom-to-top graph) and `description`.
+
+---
+
+### family_tree_drawing
+
+Generate an Excalidraw JSON drawing of a family tree with color-coded boxes and relationship arrows.
+
+**Parameters:**
+- `personId` (string, required) - Root person ID
+- `generations` (number, optional) - Number of generations (default: 3)
+
+**Example:**
+```json
+{
+  "personId": "KWQS-BBQ",
+  "generations": 3
+}
+```
+
+**Returns:** Object with `excalidraw` (Excalidraw-compatible JSON) and `description`. Import into Excalidraw (excalidraw.com) or render via excalidraw-mcp server.
+
+---
+
 ## Tool Categories Summary
 
 | Category | Tool Count | Tools |
@@ -500,8 +586,9 @@ Check the health of the FamilySearch API connection.
 | GEDCOM | 2 | gedcom_import, gedcom_export |
 | AI Research | 5 | hints_generate, merges_suggest, match_explain_llm, hints_rank_llm, timeline_summary_llm |
 | Research Planning | 1 | father_side_plan |
+| Visualization | 4 | family_tree_chart, timeline_chart, pedigree_chart, family_tree_drawing |
 | Utility | 3 | cache_get, cache_clear, healthcheck |
-| **Total** | **24** | |
+| **Total** | **27** | |
 
 ## Error Handling
 
