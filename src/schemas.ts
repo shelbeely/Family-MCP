@@ -215,3 +215,112 @@ export const RelationshipFindSchema = z.object({
   personId1: z.string().describe('The ID of the first person'),
   personId2: z.string().describe('The ID of the second person'),
 });
+
+// Phase 2: Change History
+export const ChangeHistoryPersonSchema = z.object({
+  personId: z.string().describe('The ID of the person to get change history for'),
+});
+
+export const ChangeHistoryRelationshipSchema = z.object({
+  relationshipId: z.string().describe('The ID of the relationship to get change history for'),
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+});
+
+// Phase 2: Notes CRUD
+export const NotesGetSchema = z.object({
+  personId: z.string().describe('The ID of the person whose notes to retrieve'),
+});
+
+export const NoteCreateSchema = z.object({
+  personId: z.string().describe('The ID of the person to add a note to'),
+  subject: z.string().describe('Subject/title of the note'),
+  text: z.string().describe('Body text of the note'),
+});
+
+export const NoteUpdateSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  noteId: z.string().describe('The ID of the note to update'),
+  subject: z.string().describe('Updated subject/title of the note'),
+  text: z.string().describe('Updated body text of the note'),
+});
+
+export const NoteDeleteSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  noteId: z.string().describe('The ID of the note to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 2: Batch Person Retrieval
+export const PersonsBatchGetSchema = z.object({
+  personIds: z.array(z.string()).min(1).max(200).describe('Array of person IDs to retrieve (max 200)'),
+});
+
+// Phase 2: Person Merge
+export const PersonMergeSchema = z.object({
+  survivingPersonId: z.string().describe('The ID of the person to keep (surviving person)'),
+  duplicatePersonId: z.string().describe('The ID of the duplicate person to merge into the surviving person'),
+  confirm: z.boolean().describe('Must be true to confirm merge. This is a destructive operation.'),
+});
+
+// Phase 2: Restore Operations
+export const PersonRestoreSchema = z.object({
+  personId: z.string().describe('The ID of the deleted person to restore'),
+});
+
+export const RelationshipRestoreSchema = z.object({
+  relationshipId: z.string().describe('The ID of the deleted relationship to restore'),
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+});
+
+export const ChangeRestoreSchema = z.object({
+  changeId: z.string().describe('The ID of the change to restore/undo'),
+});
+
+// Phase 2: Match Management
+export const MatchesGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get matches for'),
+});
+
+export const MatchResolveSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  matchId: z.string().describe('The ID of the match to resolve'),
+  status: z.string().describe('Resolution status for the match'),
+});
+
+export const NotAMatchCreateSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  notMatchId: z.string().describe('The ID of the person that is not a match'),
+});
+
+export const NotAMatchDeleteSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  declarationId: z.string().describe('The ID of the not-a-match declaration to remove'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 2: Preferred Relationships
+export const PreferredParentGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get preferred parent relationship for'),
+});
+
+export const PreferredParentSetSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  relationshipId: z.string().describe('The ID of the parent-child relationship to set as preferred'),
+});
+
+export const PreferredSpouseGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get preferred spouse relationship for'),
+});
+
+export const PreferredSpouseSetSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  relationshipId: z.string().describe('The ID of the couple relationship to set as preferred'),
+});
+
+// Phase 2: Conclusion Management
+export const ConclusionDeleteSchema = z.object({
+  entityType: z.enum(['person', 'couple', 'parent-child']).describe('Type of entity the conclusion belongs to'),
+  entityId: z.string().describe('The ID of the entity (person, couple relationship, or parent-child relationship)'),
+  conclusionId: z.string().describe('The ID of the conclusion to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});

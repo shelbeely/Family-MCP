@@ -346,6 +346,150 @@ export class FamilySearchClient {
     return this.request(`/tree/relationships?person=${personId1}&person=${personId2}`);
   }
 
+  // Phase 2: Change History
+  async getPersonChangeHistory(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/change-history`);
+  }
+
+  async getRelationshipChangeHistory(relationshipId: string, type: string): Promise<any> {
+    const endpoint = type === 'couple'
+      ? `/tree/couple-relationships/${relationshipId}/change-history`
+      : `/tree/child-and-parents-relationships/${relationshipId}/change-history`;
+    return this.request(endpoint);
+  }
+
+  // Phase 2: Notes CRUD
+  async getNotes(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/notes`);
+  }
+
+  async createNote(personId: string, subject: string, text: string): Promise<any> {
+    const body = { persons: [{ notes: [{ subject, text }] }] };
+    return this.request(`/tree/persons/${personId}/notes`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async updateNote(personId: string, noteId: string, subject: string, text: string): Promise<any> {
+    const body = { persons: [{ notes: [{ id: noteId, subject, text }] }] };
+    return this.request(`/tree/persons/${personId}/notes/${noteId}`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  async deleteNote(personId: string, noteId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/notes/${noteId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Phase 2: Batch Person Retrieval
+  async getPersonsBatch(personIds: string[]): Promise<any> {
+    const pids = personIds.slice(0, 200).join(',');
+    return this.request(`/tree/persons?pids=${pids}`);
+  }
+
+  // Phase 2: Person Merge
+  async mergePerson(survivingPersonId: string, duplicatePersonId: string): Promise<any> {
+    return this.request(`/tree/persons/${survivingPersonId}/merges/${duplicatePersonId}`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  // Phase 2: Restore Operations
+  async restorePerson(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/restore`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  async restoreRelationship(relationshipId: string, type: string): Promise<any> {
+    const endpoint = type === 'couple'
+      ? `/tree/couple-relationships/${relationshipId}/restore`
+      : `/tree/child-and-parents-relationships/${relationshipId}/restore`;
+    return this.request(endpoint, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  async restoreChange(changeId: string): Promise<any> {
+    return this.request(`/tree/changes/${changeId}/restore`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  // Phase 2: Match Management
+  async getMatches(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/matches`);
+  }
+
+  async resolveMatch(personId: string, matchId: string, status: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/matches/${matchId}`, {
+      method: 'POST',
+      body: JSON.stringify({ status }),
+    });
+  }
+
+  async createNotAMatch(personId: string, notMatchId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/not-a-matches`, {
+      method: 'POST',
+      body: JSON.stringify({ notMatchId }),
+    });
+  }
+
+  async deleteNotAMatch(personId: string, declarationId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/not-a-matches/${declarationId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Phase 2: Preferred Relationships
+  async getPreferredParent(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/preferred-parent-relationship`);
+  }
+
+  async setPreferredParent(personId: string, relationshipId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/preferred-parent-relationship`, {
+      method: 'PUT',
+      body: JSON.stringify({ relationshipId }),
+    });
+  }
+
+  async getPreferredSpouse(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/preferred-spouse-relationship`);
+  }
+
+  async setPreferredSpouse(personId: string, relationshipId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/preferred-spouse-relationship`, {
+      method: 'PUT',
+      body: JSON.stringify({ relationshipId }),
+    });
+  }
+
+  // Phase 2: Conclusion Management
+  async deleteConclusion(entityType: string, entityId: string, conclusionId: string): Promise<any> {
+    let base: string;
+    switch (entityType) {
+      case 'couple':
+        base = `/tree/couple-relationships/${entityId}`;
+        break;
+      case 'parent-child':
+        base = `/tree/child-and-parents-relationships/${entityId}`;
+        break;
+      default:
+        base = `/tree/persons/${entityId}`;
+    }
+    return this.request(`${base}/conclusions/${conclusionId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Healthcheck
   async healthcheck(): Promise<any> {
     try {

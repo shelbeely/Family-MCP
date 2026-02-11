@@ -282,6 +282,110 @@ class FamilySearchMCPServer {
           result = await this.client.findRelationship(args.personId1, args.personId2);
           break;
 
+        // Phase 2: Change History
+        case 'change_history_person':
+          result = await this.client.getPersonChangeHistory(args.personId);
+          break;
+
+        case 'change_history_relationship':
+          result = await this.client.getRelationshipChangeHistory(args.relationshipId, args.type);
+          break;
+
+        // Phase 2: Notes CRUD
+        case 'notes_get':
+          result = await this.client.getNotes(args.personId);
+          break;
+
+        case 'note_create':
+          result = await this.client.createNote(args.personId, args.subject, args.text);
+          break;
+
+        case 'note_update':
+          result = await this.client.updateNote(args.personId, args.noteId, args.subject, args.text);
+          break;
+
+        case 'note_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteNote(args.personId, args.noteId);
+          }
+          break;
+
+        // Phase 2: Batch Person Retrieval
+        case 'persons_batch_get':
+          result = await this.client.getPersonsBatch(args.personIds);
+          break;
+
+        // Phase 2: Person Merge
+        case 'person_merge':
+          if (!args.confirm) {
+            result = { error: 'Merge not confirmed. Set confirm: true to proceed. This is a destructive operation.' };
+          } else {
+            result = await this.client.mergePerson(args.survivingPersonId, args.duplicatePersonId);
+          }
+          break;
+
+        // Phase 2: Restore Operations
+        case 'person_restore':
+          result = await this.client.restorePerson(args.personId);
+          break;
+
+        case 'relationship_restore':
+          result = await this.client.restoreRelationship(args.relationshipId, args.type);
+          break;
+
+        case 'change_restore':
+          result = await this.client.restoreChange(args.changeId);
+          break;
+
+        // Phase 2: Match Management
+        case 'matches_get':
+          result = await this.client.getMatches(args.personId);
+          break;
+
+        case 'match_resolve':
+          result = await this.client.resolveMatch(args.personId, args.matchId, args.status);
+          break;
+
+        case 'not_a_match_create':
+          result = await this.client.createNotAMatch(args.personId, args.notMatchId);
+          break;
+
+        case 'not_a_match_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteNotAMatch(args.personId, args.declarationId);
+          }
+          break;
+
+        // Phase 2: Preferred Relationships
+        case 'preferred_parent_get':
+          result = await this.client.getPreferredParent(args.personId);
+          break;
+
+        case 'preferred_parent_set':
+          result = await this.client.setPreferredParent(args.personId, args.relationshipId);
+          break;
+
+        case 'preferred_spouse_get':
+          result = await this.client.getPreferredSpouse(args.personId);
+          break;
+
+        case 'preferred_spouse_set':
+          result = await this.client.setPreferredSpouse(args.personId, args.relationshipId);
+          break;
+
+        // Phase 2: Conclusion Management
+        case 'conclusion_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteConclusion(args.entityType, args.entityId, args.conclusionId);
+          }
+          break;
+
         default:
           throw new Error(`Unknown tool: ${name}`);
       }

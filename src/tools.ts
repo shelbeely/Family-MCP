@@ -471,6 +471,255 @@ export function getTools(): Tool[] {
         required: ['personId1', 'personId2'],
       },
     },
+    // Phase 2: Change History
+    {
+      name: 'change_history_person',
+      description: 'Get the change history for a person in the FamilySearch Family Tree. Shows all modifications made to the person record.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get change history for' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'change_history_relationship',
+      description: 'Get the change history for a relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          relationshipId: { type: 'string', description: 'The ID of the relationship' },
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+        },
+        required: ['relationshipId', 'type'],
+      },
+    },
+    // Phase 2: Notes CRUD
+    {
+      name: 'notes_get',
+      description: 'Get all notes attached to a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person whose notes to retrieve' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'note_create',
+      description: 'Create a new note on a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to add a note to' },
+          subject: { type: 'string', description: 'Subject/title of the note' },
+          text: { type: 'string', description: 'Body text of the note' },
+        },
+        required: ['personId', 'subject', 'text'],
+      },
+    },
+    {
+      name: 'note_update',
+      description: 'Update an existing note on a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          noteId: { type: 'string', description: 'The ID of the note to update' },
+          subject: { type: 'string', description: 'Updated subject/title of the note' },
+          text: { type: 'string', description: 'Updated body text of the note' },
+        },
+        required: ['personId', 'noteId', 'subject', 'text'],
+      },
+    },
+    {
+      name: 'note_delete',
+      description: 'Delete a note from a person in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          noteId: { type: 'string', description: 'The ID of the note to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['personId', 'noteId', 'confirm'],
+      },
+    },
+    // Phase 2: Batch Person Retrieval
+    {
+      name: 'persons_batch_get',
+      description: 'Retrieve multiple persons at once from the FamilySearch Family Tree (up to 200 person IDs).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personIds: { type: 'array', items: { type: 'string' }, description: 'Array of person IDs to retrieve (max 200)' },
+        },
+        required: ['personIds'],
+      },
+    },
+    // Phase 2: Person Merge
+    {
+      name: 'person_merge',
+      description: 'Merge a duplicate person into a surviving person in the FamilySearch Family Tree. This is a destructive operation that requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          survivingPersonId: { type: 'string', description: 'The ID of the person to keep (surviving person)' },
+          duplicatePersonId: { type: 'string', description: 'The ID of the duplicate person to merge' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm merge' },
+        },
+        required: ['survivingPersonId', 'duplicatePersonId', 'confirm'],
+      },
+    },
+    // Phase 2: Restore Operations
+    {
+      name: 'person_restore',
+      description: 'Restore a previously deleted person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the deleted person to restore' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'relationship_restore',
+      description: 'Restore a previously deleted relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          relationshipId: { type: 'string', description: 'The ID of the deleted relationship to restore' },
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+        },
+        required: ['relationshipId', 'type'],
+      },
+    },
+    {
+      name: 'change_restore',
+      description: 'Restore/undo a specific change in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          changeId: { type: 'string', description: 'The ID of the change to restore/undo' },
+        },
+        required: ['changeId'],
+      },
+    },
+    // Phase 2: Match Management
+    {
+      name: 'matches_get',
+      description: 'Get potential duplicate matches for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get matches for' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'match_resolve',
+      description: 'Resolve a potential match for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          matchId: { type: 'string', description: 'The ID of the match to resolve' },
+          status: { type: 'string', description: 'Resolution status for the match' },
+        },
+        required: ['personId', 'matchId', 'status'],
+      },
+    },
+    {
+      name: 'not_a_match_create',
+      description: 'Declare that two persons are not a match in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          notMatchId: { type: 'string', description: 'The ID of the person that is not a match' },
+        },
+        required: ['personId', 'notMatchId'],
+      },
+    },
+    {
+      name: 'not_a_match_delete',
+      description: 'Remove a not-a-match declaration in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          declarationId: { type: 'string', description: 'The ID of the not-a-match declaration to remove' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['personId', 'declarationId', 'confirm'],
+      },
+    },
+    // Phase 2: Preferred Relationships
+    {
+      name: 'preferred_parent_get',
+      description: 'Get the preferred parent relationship for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'preferred_parent_set',
+      description: 'Set the preferred parent relationship for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          relationshipId: { type: 'string', description: 'The ID of the parent-child relationship to set as preferred' },
+        },
+        required: ['personId', 'relationshipId'],
+      },
+    },
+    {
+      name: 'preferred_spouse_get',
+      description: 'Get the preferred spouse/couple relationship for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'preferred_spouse_set',
+      description: 'Set the preferred spouse/couple relationship for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          relationshipId: { type: 'string', description: 'The ID of the couple relationship to set as preferred' },
+        },
+        required: ['personId', 'relationshipId'],
+      },
+    },
+    // Phase 2: Conclusion Management
+    {
+      name: 'conclusion_delete',
+      description: 'Delete a conclusion (name, gender, fact, etc.) from a person or relationship in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          entityType: { type: 'string', enum: ['person', 'couple', 'parent-child'], description: 'Type of entity the conclusion belongs to' },
+          entityId: { type: 'string', description: 'The ID of the entity' },
+          conclusionId: { type: 'string', description: 'The ID of the conclusion to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['entityType', 'entityId', 'conclusionId', 'confirm'],
+      },
+    },
   ];
 }
 
