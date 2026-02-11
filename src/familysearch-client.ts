@@ -490,6 +490,210 @@ export class FamilySearchClient {
     });
   }
 
+  // Phase 3: Place Authority
+  async searchPlaces(query: string, count?: number): Promise<any> {
+    const params = new URLSearchParams({ q: query });
+    if (count) params.set('count', String(count));
+    return this.request(`/places/search?${params}`);
+  }
+
+  async getPlace(placeId: string): Promise<any> {
+    return this.request(`/places/${placeId}`);
+  }
+
+  async getPlaceChildren(placeId: string): Promise<any> {
+    return this.request(`/places/${placeId}/children`);
+  }
+
+  // Phase 3: Discussions
+  async getDiscussionReferences(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/discussion-references`);
+  }
+
+  async getDiscussion(discussionId: string): Promise<any> {
+    return this.request(`/discussions/${discussionId}`);
+  }
+
+  async createDiscussion(title: string, details: string): Promise<any> {
+    return this.request('/discussions', {
+      method: 'POST',
+      body: JSON.stringify({ title, details }),
+    });
+  }
+
+  async updateDiscussion(discussionId: string, title: string, details: string): Promise<any> {
+    return this.request(`/discussions/${discussionId}`, {
+      method: 'POST',
+      body: JSON.stringify({ title, details }),
+    });
+  }
+
+  async createDiscussionComment(discussionId: string, text: string): Promise<any> {
+    return this.request(`/discussions/${discussionId}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ text }),
+    });
+  }
+
+  async deleteDiscussionComment(discussionId: string, commentId: string): Promise<any> {
+    return this.request(`/discussions/${discussionId}/comments/${commentId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Phase 3: Source Description Management
+  async getSourceDescription(sourceId: string): Promise<any> {
+    return this.request(`/sources/descriptions/${sourceId}`);
+  }
+
+  async createSourceDescription(data: { title: string; citation: string; about?: string; notes?: string }): Promise<any> {
+    return this.request('/sources/descriptions', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updateSourceDescription(sourceId: string, updates: { title?: string; citation?: string; about?: string; notes?: string }): Promise<any> {
+    return this.request(`/sources/descriptions/${sourceId}`, {
+      method: 'POST',
+      body: JSON.stringify(updates),
+    });
+  }
+
+  async deleteSourceDescription(sourceId: string): Promise<any> {
+    return this.request(`/sources/descriptions/${sourceId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async getSourceDescriptionChanges(sourceId: string): Promise<any> {
+    return this.request(`/sources/descriptions/${sourceId}/changes`, {
+      method: 'POST',
+      body: JSON.stringify({}),
+    });
+  }
+
+  // Phase 3: Relationship-Level Sources
+  async getRelationshipSources(type: string, id: string): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/source-references`);
+  }
+
+  async attachRelationshipSource(type: string, id: string, sourceRef: any): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/source-references`, {
+      method: 'POST',
+      body: JSON.stringify(sourceRef),
+    });
+  }
+
+  async detachRelationshipSource(type: string, id: string, sourceRefId: string): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/source-references/${sourceRefId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Phase 3: Relationship-Level Notes
+  async getRelationshipNotes(type: string, id: string): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/notes`);
+  }
+
+  async createRelationshipNote(type: string, id: string, subject: string, text: string): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/notes`, {
+      method: 'POST',
+      body: JSON.stringify({ notes: [{ subject, text }] }),
+    });
+  }
+
+  async deleteRelationshipNote(type: string, id: string, noteId: string): Promise<any> {
+    const base = type === 'couple'
+      ? `/tree/couple-relationships/${id}`
+      : `/tree/child-and-parents-relationships/${id}`;
+    return this.request(`${base}/notes/${noteId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  // Phase 3: Source Box / Folders
+  async getSourceFolders(): Promise<any> {
+    return this.request('/tree/source-folders');
+  }
+
+  async createSourceFolder(name: string): Promise<any> {
+    return this.request('/tree/source-folders', {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  async getSourceFolder(folderId: string): Promise<any> {
+    return this.request(`/tree/source-folders/${folderId}`);
+  }
+
+  async updateSourceFolder(folderId: string, name: string): Promise<any> {
+    return this.request(`/tree/source-folders/${folderId}`, {
+      method: 'POST',
+      body: JSON.stringify({ name }),
+    });
+  }
+
+  async deleteSourceFolder(folderId: string): Promise<any> {
+    return this.request(`/tree/source-folders/${folderId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async addToSourceFolder(folderId: string, sourceIds: string[]): Promise<any> {
+    return this.request(`/tree/source-folders/${folderId}/source-descriptions`, {
+      method: 'POST',
+      body: JSON.stringify(sourceIds.map(id => ({ id }))),
+    });
+  }
+
+  async removeFromSourceFolder(folderId: string, sourceIds: string[]): Promise<any> {
+    return this.request(`/tree/source-folders/${folderId}/source-descriptions`, {
+      method: 'DELETE',
+      body: JSON.stringify(sourceIds.map(id => ({ id }))),
+    });
+  }
+
+  // Phase 3: Memory CRUD
+  async getMemory(memoryId: string): Promise<any> {
+    return this.request(`/memories/${memoryId}`);
+  }
+
+  async deleteMemory(memoryId: string): Promise<any> {
+    return this.request(`/memories/${memoryId}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async attachMemory(personId: string, memoryId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/memory-references`, {
+      method: 'POST',
+      body: JSON.stringify({ memoryId }),
+    });
+  }
+
+  async detachMemory(personId: string, referenceId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/memory-references/${referenceId}`, {
+      method: 'DELETE',
+    });
+  }
+
   // Healthcheck
   async healthcheck(): Promise<any> {
     try {

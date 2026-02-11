@@ -324,3 +324,169 @@ export const ConclusionDeleteSchema = z.object({
   conclusionId: z.string().describe('The ID of the conclusion to delete'),
   confirm: z.boolean().describe('Must be true to confirm deletion'),
 });
+
+// Phase 3: Place Authority
+export const PlaceSearchSchema = z.object({
+  query: z.string().describe('Search query for places'),
+  count: z.number().optional().describe('Maximum number of results to return'),
+});
+
+export const PlaceGetSchema = z.object({
+  placeId: z.string().describe('The ID of the place to retrieve'),
+});
+
+export const PlaceChildrenSchema = z.object({
+  placeId: z.string().describe('The ID of the place to get children for'),
+});
+
+// Phase 3: Discussions
+export const DiscussionsGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get discussion references for'),
+});
+
+export const DiscussionReadSchema = z.object({
+  discussionId: z.string().describe('The ID of the discussion to read'),
+});
+
+export const DiscussionCreateSchema = z.object({
+  title: z.string().describe('Title of the discussion'),
+  details: z.string().describe('Details/body of the discussion'),
+});
+
+export const DiscussionUpdateSchema = z.object({
+  discussionId: z.string().describe('The ID of the discussion to update'),
+  title: z.string().describe('Updated title of the discussion'),
+  details: z.string().describe('Updated details/body of the discussion'),
+});
+
+export const DiscussionCommentSchema = z.object({
+  discussionId: z.string().describe('The ID of the discussion to comment on'),
+  text: z.string().describe('Comment text'),
+});
+
+export const DiscussionCommentDeleteSchema = z.object({
+  discussionId: z.string().describe('The ID of the discussion'),
+  commentId: z.string().describe('The ID of the comment to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 3: Source Description Management
+export const SourceDescriptionGetSchema = z.object({
+  sourceId: z.string().describe('The ID of the source description to retrieve'),
+});
+
+export const SourceDescriptionCreateSchema = z.object({
+  title: z.string().describe('Title of the source'),
+  citation: z.string().describe('Citation text for the source'),
+  about: z.string().optional().describe('URL the source is about'),
+  notes: z.string().optional().describe('Notes about the source'),
+});
+
+export const SourceDescriptionUpdateSchema = z.object({
+  sourceId: z.string().describe('The ID of the source description to update'),
+  title: z.string().optional().describe('Updated title'),
+  citation: z.string().optional().describe('Updated citation text'),
+  about: z.string().optional().describe('Updated URL'),
+  notes: z.string().optional().describe('Updated notes'),
+});
+
+export const SourceDescriptionDeleteSchema = z.object({
+  sourceId: z.string().describe('The ID of the source description to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+export const SourceDescriptionChangesSchema = z.object({
+  sourceId: z.string().describe('The ID of the source description to get changes for'),
+});
+
+// Phase 3: Relationship-Level Sources
+export const RelationshipSourcesGetSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+});
+
+export const RelationshipSourceAttachSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+  sourceRef: z.any().describe('Source reference object to attach'),
+});
+
+export const RelationshipSourceDetachSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+  sourceRefId: z.string().describe('The ID of the source reference to detach'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 3: Relationship-Level Notes
+export const RelationshipNotesGetSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+});
+
+export const RelationshipNoteCreateSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+  subject: z.string().describe('Subject/title of the note'),
+  text: z.string().describe('Body text of the note'),
+});
+
+export const RelationshipNoteDeleteSchema = z.object({
+  type: z.enum(['couple', 'parent-child']).describe('Type of relationship'),
+  id: z.string().describe('The ID of the relationship'),
+  noteId: z.string().describe('The ID of the note to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+// Phase 3: Source Box / Folders
+export const SourceFoldersListSchema = z.object({});
+
+export const SourceFolderCreateSchema = z.object({
+  name: z.string().describe('Name of the source folder'),
+});
+
+export const SourceFolderGetSchema = z.object({
+  folderId: z.string().describe('The ID of the source folder'),
+});
+
+export const SourceFolderUpdateSchema = z.object({
+  folderId: z.string().describe('The ID of the source folder to update'),
+  name: z.string().describe('Updated name of the source folder'),
+});
+
+export const SourceFolderDeleteSchema = z.object({
+  folderId: z.string().describe('The ID of the source folder to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+export const SourceFolderAddSchema = z.object({
+  folderId: z.string().describe('The ID of the source folder'),
+  sourceIds: z.array(z.string()).describe('Array of source description IDs to add to the folder'),
+});
+
+export const SourceFolderRemoveSchema = z.object({
+  folderId: z.string().describe('The ID of the source folder'),
+  sourceIds: z.array(z.string()).describe('Array of source description IDs to remove from the folder'),
+  confirm: z.boolean().describe('Must be true to confirm removal'),
+});
+
+// Phase 3: Memory CRUD
+export const MemoryGetSchema = z.object({
+  memoryId: z.string().describe('The ID of the memory to retrieve'),
+});
+
+export const MemoryDeleteSchema = z.object({
+  memoryId: z.string().describe('The ID of the memory to delete'),
+  confirm: z.boolean().describe('Must be true to confirm deletion'),
+});
+
+export const MemoryAttachSchema = z.object({
+  personId: z.string().describe('The ID of the person to attach the memory to'),
+  memoryId: z.string().describe('The ID of the memory to attach'),
+});
+
+export const MemoryDetachSchema = z.object({
+  personId: z.string().describe('The ID of the person'),
+  referenceId: z.string().describe('The ID of the memory reference to detach'),
+  confirm: z.boolean().describe('Must be true to confirm detachment'),
+});

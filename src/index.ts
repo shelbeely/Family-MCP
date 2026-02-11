@@ -386,6 +386,179 @@ class FamilySearchMCPServer {
           }
           break;
 
+        // Phase 3: Place Authority
+        case 'place_search':
+          result = await this.client.searchPlaces(args.query, args.count);
+          break;
+
+        case 'place_get':
+          result = await this.client.getPlace(args.placeId);
+          break;
+
+        case 'place_children':
+          result = await this.client.getPlaceChildren(args.placeId);
+          break;
+
+        // Phase 3: Discussions
+        case 'discussions_get':
+          result = await this.client.getDiscussionReferences(args.personId);
+          break;
+
+        case 'discussion_read':
+          result = await this.client.getDiscussion(args.discussionId);
+          break;
+
+        case 'discussion_create':
+          result = await this.client.createDiscussion(args.title, args.details);
+          break;
+
+        case 'discussion_update':
+          result = await this.client.updateDiscussion(args.discussionId, args.title, args.details);
+          break;
+
+        case 'discussion_comment':
+          result = await this.client.createDiscussionComment(args.discussionId, args.text);
+          break;
+
+        case 'discussion_comment_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteDiscussionComment(args.discussionId, args.commentId);
+          }
+          break;
+
+        // Phase 3: Source Description Management
+        case 'source_description_get':
+          result = await this.client.getSourceDescription(args.sourceId);
+          break;
+
+        case 'source_description_create':
+          result = await this.client.createSourceDescription({
+            title: args.title,
+            citation: args.citation,
+            about: args.about,
+            notes: args.notes,
+          });
+          break;
+
+        case 'source_description_update':
+          result = await this.client.updateSourceDescription(args.sourceId, {
+            title: args.title,
+            citation: args.citation,
+            about: args.about,
+            notes: args.notes,
+          });
+          break;
+
+        case 'source_description_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteSourceDescription(args.sourceId);
+          }
+          break;
+
+        case 'source_description_changes':
+          result = await this.client.getSourceDescriptionChanges(args.sourceId);
+          break;
+
+        // Phase 3: Relationship-Level Sources
+        case 'relationship_sources_get':
+          result = await this.client.getRelationshipSources(args.type, args.id);
+          break;
+
+        case 'relationship_source_attach':
+          result = await this.client.attachRelationshipSource(args.type, args.id, args.sourceRef);
+          break;
+
+        case 'relationship_source_detach':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.detachRelationshipSource(args.type, args.id, args.sourceRefId);
+          }
+          break;
+
+        // Phase 3: Relationship-Level Notes
+        case 'relationship_notes_get':
+          result = await this.client.getRelationshipNotes(args.type, args.id);
+          break;
+
+        case 'relationship_note_create':
+          result = await this.client.createRelationshipNote(args.type, args.id, args.subject, args.text);
+          break;
+
+        case 'relationship_note_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteRelationshipNote(args.type, args.id, args.noteId);
+          }
+          break;
+
+        // Phase 3: Source Box / Folders
+        case 'source_folders_list':
+          result = await this.client.getSourceFolders();
+          break;
+
+        case 'source_folder_create':
+          result = await this.client.createSourceFolder(args.name);
+          break;
+
+        case 'source_folder_get':
+          result = await this.client.getSourceFolder(args.folderId);
+          break;
+
+        case 'source_folder_update':
+          result = await this.client.updateSourceFolder(args.folderId, args.name);
+          break;
+
+        case 'source_folder_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteSourceFolder(args.folderId);
+          }
+          break;
+
+        case 'source_folder_add':
+          result = await this.client.addToSourceFolder(args.folderId, args.sourceIds);
+          break;
+
+        case 'source_folder_remove':
+          if (!args.confirm) {
+            result = { error: 'Removal not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.removeFromSourceFolder(args.folderId, args.sourceIds);
+          }
+          break;
+
+        // Phase 3: Memory CRUD
+        case 'memory_get':
+          result = await this.client.getMemory(args.memoryId);
+          break;
+
+        case 'memory_delete':
+          if (!args.confirm) {
+            result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.deleteMemory(args.memoryId);
+          }
+          break;
+
+        case 'memory_attach':
+          result = await this.client.attachMemory(args.personId, args.memoryId);
+          break;
+
+        case 'memory_detach':
+          if (!args.confirm) {
+            result = { error: 'Detachment not confirmed. Set confirm: true to proceed.' };
+          } else {
+            result = await this.client.detachMemory(args.personId, args.referenceId);
+          }
+          break;
+
         default:
           throw new Error(`Unknown tool: ${name}`);
       }

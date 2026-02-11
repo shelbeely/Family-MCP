@@ -720,6 +720,388 @@ export function getTools(): Tool[] {
         required: ['entityType', 'entityId', 'conclusionId', 'confirm'],
       },
     },
+    // Phase 3: Place Authority
+    {
+      name: 'place_search',
+      description: 'Search for places in the FamilySearch Place Authority.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Search query for places' },
+          count: { type: 'number', description: 'Maximum number of results to return' },
+        },
+        required: ['query'],
+      },
+    },
+    {
+      name: 'place_get',
+      description: 'Get detailed information about a specific place from the FamilySearch Place Authority.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          placeId: { type: 'string', description: 'The ID of the place to retrieve' },
+        },
+        required: ['placeId'],
+      },
+    },
+    {
+      name: 'place_children',
+      description: 'Get child places (subdivisions) of a specific place in the FamilySearch Place Authority.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          placeId: { type: 'string', description: 'The ID of the place to get children for' },
+        },
+        required: ['placeId'],
+      },
+    },
+    // Phase 3: Discussions
+    {
+      name: 'discussions_get',
+      description: 'Get discussion references for a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get discussion references for' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'discussion_read',
+      description: 'Read a specific discussion from FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          discussionId: { type: 'string', description: 'The ID of the discussion to read' },
+        },
+        required: ['discussionId'],
+      },
+    },
+    {
+      name: 'discussion_create',
+      description: 'Create a new discussion in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Title of the discussion' },
+          details: { type: 'string', description: 'Details/body of the discussion' },
+        },
+        required: ['title', 'details'],
+      },
+    },
+    {
+      name: 'discussion_update',
+      description: 'Update an existing discussion in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          discussionId: { type: 'string', description: 'The ID of the discussion to update' },
+          title: { type: 'string', description: 'Updated title of the discussion' },
+          details: { type: 'string', description: 'Updated details/body of the discussion' },
+        },
+        required: ['discussionId', 'title', 'details'],
+      },
+    },
+    {
+      name: 'discussion_comment',
+      description: 'Add a comment to a discussion in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          discussionId: { type: 'string', description: 'The ID of the discussion to comment on' },
+          text: { type: 'string', description: 'Comment text' },
+        },
+        required: ['discussionId', 'text'],
+      },
+    },
+    {
+      name: 'discussion_comment_delete',
+      description: 'Delete a comment from a discussion in FamilySearch. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          discussionId: { type: 'string', description: 'The ID of the discussion' },
+          commentId: { type: 'string', description: 'The ID of the comment to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['discussionId', 'commentId', 'confirm'],
+      },
+    },
+    // Phase 3: Source Description Management
+    {
+      name: 'source_description_get',
+      description: 'Get a source description from FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sourceId: { type: 'string', description: 'The ID of the source description to retrieve' },
+        },
+        required: ['sourceId'],
+      },
+    },
+    {
+      name: 'source_description_create',
+      description: 'Create a new source description in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          title: { type: 'string', description: 'Title of the source' },
+          citation: { type: 'string', description: 'Citation text for the source' },
+          about: { type: 'string', description: 'URL the source is about' },
+          notes: { type: 'string', description: 'Notes about the source' },
+        },
+        required: ['title', 'citation'],
+      },
+    },
+    {
+      name: 'source_description_update',
+      description: 'Update an existing source description in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sourceId: { type: 'string', description: 'The ID of the source description to update' },
+          title: { type: 'string', description: 'Updated title' },
+          citation: { type: 'string', description: 'Updated citation text' },
+          about: { type: 'string', description: 'Updated URL' },
+          notes: { type: 'string', description: 'Updated notes' },
+        },
+        required: ['sourceId'],
+      },
+    },
+    {
+      name: 'source_description_delete',
+      description: 'Delete a source description from FamilySearch. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sourceId: { type: 'string', description: 'The ID of the source description to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['sourceId', 'confirm'],
+      },
+    },
+    {
+      name: 'source_description_changes',
+      description: 'Get the change history for a source description in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          sourceId: { type: 'string', description: 'The ID of the source description to get changes for' },
+        },
+        required: ['sourceId'],
+      },
+    },
+    // Phase 3: Relationship-Level Sources
+    {
+      name: 'relationship_sources_get',
+      description: 'Get source references for a relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+        },
+        required: ['type', 'id'],
+      },
+    },
+    {
+      name: 'relationship_source_attach',
+      description: 'Attach a source reference to a relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+          sourceRef: { type: 'object', description: 'Source reference object to attach' },
+        },
+        required: ['type', 'id', 'sourceRef'],
+      },
+    },
+    {
+      name: 'relationship_source_detach',
+      description: 'Detach a source reference from a relationship (couple or parent-child) in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+          sourceRefId: { type: 'string', description: 'The ID of the source reference to detach' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['type', 'id', 'sourceRefId', 'confirm'],
+      },
+    },
+    // Phase 3: Relationship-Level Notes
+    {
+      name: 'relationship_notes_get',
+      description: 'Get notes for a relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+        },
+        required: ['type', 'id'],
+      },
+    },
+    {
+      name: 'relationship_note_create',
+      description: 'Create a note on a relationship (couple or parent-child) in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+          subject: { type: 'string', description: 'Subject/title of the note' },
+          text: { type: 'string', description: 'Body text of the note' },
+        },
+        required: ['type', 'id', 'subject', 'text'],
+      },
+    },
+    {
+      name: 'relationship_note_delete',
+      description: 'Delete a note from a relationship (couple or parent-child) in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['couple', 'parent-child'], description: 'Type of relationship' },
+          id: { type: 'string', description: 'The ID of the relationship' },
+          noteId: { type: 'string', description: 'The ID of the note to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['type', 'id', 'noteId', 'confirm'],
+      },
+    },
+    // Phase 3: Source Box / Folders
+    {
+      name: 'source_folders_list',
+      description: 'List all source folders in the FamilySearch source box.',
+      inputSchema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'source_folder_create',
+      description: 'Create a new source folder in the FamilySearch source box.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', description: 'Name of the source folder' },
+        },
+        required: ['name'],
+      },
+    },
+    {
+      name: 'source_folder_get',
+      description: 'Get details of a specific source folder in the FamilySearch source box.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folderId: { type: 'string', description: 'The ID of the source folder' },
+        },
+        required: ['folderId'],
+      },
+    },
+    {
+      name: 'source_folder_update',
+      description: 'Update a source folder name in the FamilySearch source box.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folderId: { type: 'string', description: 'The ID of the source folder to update' },
+          name: { type: 'string', description: 'Updated name of the source folder' },
+        },
+        required: ['folderId', 'name'],
+      },
+    },
+    {
+      name: 'source_folder_delete',
+      description: 'Delete a source folder from the FamilySearch source box. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folderId: { type: 'string', description: 'The ID of the source folder to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['folderId', 'confirm'],
+      },
+    },
+    {
+      name: 'source_folder_add',
+      description: 'Add source descriptions to a source folder in the FamilySearch source box.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folderId: { type: 'string', description: 'The ID of the source folder' },
+          sourceIds: { type: 'array', items: { type: 'string' }, description: 'Array of source description IDs to add' },
+        },
+        required: ['folderId', 'sourceIds'],
+      },
+    },
+    {
+      name: 'source_folder_remove',
+      description: 'Remove source descriptions from a source folder in the FamilySearch source box. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          folderId: { type: 'string', description: 'The ID of the source folder' },
+          sourceIds: { type: 'array', items: { type: 'string' }, description: 'Array of source description IDs to remove' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm removal' },
+        },
+        required: ['folderId', 'sourceIds', 'confirm'],
+      },
+    },
+    // Phase 3: Memory CRUD
+    {
+      name: 'memory_get',
+      description: 'Get detailed information about a specific memory in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          memoryId: { type: 'string', description: 'The ID of the memory to retrieve' },
+        },
+        required: ['memoryId'],
+      },
+    },
+    {
+      name: 'memory_delete',
+      description: 'Delete a memory from FamilySearch. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          memoryId: { type: 'string', description: 'The ID of the memory to delete' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm deletion' },
+        },
+        required: ['memoryId', 'confirm'],
+      },
+    },
+    {
+      name: 'memory_attach',
+      description: 'Attach a memory to a person in the FamilySearch Family Tree.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to attach the memory to' },
+          memoryId: { type: 'string', description: 'The ID of the memory to attach' },
+        },
+        required: ['personId', 'memoryId'],
+      },
+    },
+    {
+      name: 'memory_detach',
+      description: 'Detach a memory from a person in the FamilySearch Family Tree. Requires explicit confirmation.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person' },
+          referenceId: { type: 'string', description: 'The ID of the memory reference to detach' },
+          confirm: { type: 'boolean', description: 'Must be true to confirm detachment' },
+        },
+        required: ['personId', 'referenceId', 'confirm'],
+      },
+    },
   ];
 }
 
