@@ -16,8 +16,15 @@ import {
   rankHints,
   generateTimelineSummary,
   generateFatherSidePlan,
+  generateMotherSidePlan,
   getCacheInfo,
 } from './tools.js';
+import {
+  generateFamilyTreeChart,
+  generateTimelineChart,
+  generatePedigreeChart,
+  generateFamilyTreeDrawing,
+} from './visualization.js';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -48,11 +55,12 @@ export class FamilySearchHTTPServer {
   }
 
   private initializeClient(): void {
-    const token = process.env.FAMILYSEARCH_TOKEN || this.tokenStore.loadToken();
+    const token = process.env.COPILOT_MCP_FAMILYSEARCH_TOKEN || process.env.FAMILYSEARCH_TOKEN || this.tokenStore.loadToken();
     
     if (token) {
       this.client = new FamilySearchClient({
         accessToken: token,
+        baseUrl: process.env.COPILOT_MCP_FAMILYSEARCH_BASE_URL || process.env.FAMILYSEARCH_BASE_URL,
         cache: this.cache,
       });
     }
@@ -72,7 +80,7 @@ export class FamilySearchHTTPServer {
             {
               type: 'text',
               text: JSON.stringify({
-                error: 'FamilySearch client not initialized. Please set FAMILYSEARCH_TOKEN environment variable.',
+                error: 'FamilySearch client not initialized. Please set FAMILYSEARCH_TOKEN (or COPILOT_MCP_FAMILYSEARCH_TOKEN for GitHub Copilot) environment variable.',
               }),
             },
           ],
@@ -154,6 +162,350 @@ export class FamilySearchHTTPServer {
           case 'healthcheck':
             result = await this.client.healthcheck();
             break;
+          case 'family_tree_chart':
+            result = await generateFamilyTreeChart(this.client, typedArgs.personId, typedArgs.generations, typedArgs.direction);
+            break;
+          case 'timeline_chart':
+            result = await generateTimelineChart(this.client, typedArgs.personId, typedArgs.includeRelatives);
+            break;
+          case 'pedigree_chart':
+            result = await generatePedigreeChart(this.client, typedArgs.personId, typedArgs.generations);
+            break;
+          case 'family_tree_drawing':
+            result = await generateFamilyTreeDrawing(this.client, typedArgs.personId, typedArgs.generations);
+            break;
+          // Phase 1: Ancestry & Pedigree
+          case 'ancestry_get':
+            result = await this.client.getAncestry(typedArgs.personId, typedArgs.generations);
+            break;
+          case 'descendancy_get':
+            result = await this.client.getDescendancy(typedArgs.personId, typedArgs.generations);
+            break;
+          // Phase 1: Person CRUD
+          case 'person_create':
+            result = await this.client.createPerson(typedArgs);
+            break;
+          case 'person_update':
+            result = await this.client.updatePerson(typedArgs.personId, typedArgs);
+            break;
+          case 'person_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deletePerson(typedArgs.personId, typedArgs.reason);
+            }
+            break;
+          // Phase 1: Relationship Management
+          case 'relationship_create_couple':
+            result = await this.client.createCoupleRelationship(typedArgs.person1Id, typedArgs.person2Id);
+            break;
+          case 'relationship_create_parent_child':
+            result = await this.client.createParentChildRelationship(typedArgs.parentId, typedArgs.childId);
+            break;
+          case 'relationship_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteRelationship(typedArgs.relationshipId, typedArgs.type, typedArgs.reason);
+            }
+            break;
+          // Phase 1: User & Navigation
+          case 'user_current':
+            result = await this.client.getCurrentUser();
+            break;
+          case 'user_tree_person':
+            result = await this.client.getCurrentTreePerson();
+            break;
+          case 'relationship_find':
+            result = await this.client.findRelationship(typedArgs.personId1, typedArgs.personId2);
+            break;
+          // Phase 2: Change History
+          case 'change_history_person':
+            result = await this.client.getPersonChangeHistory(typedArgs.personId);
+            break;
+          case 'change_history_relationship':
+            result = await this.client.getRelationshipChangeHistory(typedArgs.relationshipId, typedArgs.type);
+            break;
+          // Phase 2: Notes CRUD
+          case 'notes_get':
+            result = await this.client.getNotes(typedArgs.personId);
+            break;
+          case 'note_create':
+            result = await this.client.createNote(typedArgs.personId, typedArgs.subject, typedArgs.text);
+            break;
+          case 'note_update':
+            result = await this.client.updateNote(typedArgs.personId, typedArgs.noteId, typedArgs.subject, typedArgs.text);
+            break;
+          case 'note_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteNote(typedArgs.personId, typedArgs.noteId);
+            }
+            break;
+          // Phase 2: Batch Person Retrieval
+          case 'persons_batch_get':
+            result = await this.client.getPersonsBatch(typedArgs.personIds);
+            break;
+          // Phase 2: Person Merge
+          case 'person_merge':
+            if (!typedArgs.confirm) {
+              result = { error: 'Merge not confirmed. Set confirm: true to proceed. This is a destructive operation.' };
+            } else {
+              result = await this.client.mergePerson(typedArgs.survivingPersonId, typedArgs.duplicatePersonId);
+            }
+            break;
+          // Phase 2: Restore Operations
+          case 'person_restore':
+            result = await this.client.restorePerson(typedArgs.personId);
+            break;
+          case 'relationship_restore':
+            result = await this.client.restoreRelationship(typedArgs.relationshipId, typedArgs.type);
+            break;
+          case 'change_restore':
+            result = await this.client.restoreChange(typedArgs.changeId);
+            break;
+          // Phase 2: Match Management
+          case 'matches_get':
+            result = await this.client.getMatches(typedArgs.personId);
+            break;
+          case 'match_resolve':
+            result = await this.client.resolveMatch(typedArgs.personId, typedArgs.matchId, typedArgs.status);
+            break;
+          case 'not_a_match_create':
+            result = await this.client.createNotAMatch(typedArgs.personId, typedArgs.notMatchId);
+            break;
+          case 'not_a_match_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteNotAMatch(typedArgs.personId, typedArgs.declarationId);
+            }
+            break;
+          // Phase 2: Preferred Relationships
+          case 'preferred_parent_get':
+            result = await this.client.getPreferredParent(typedArgs.personId);
+            break;
+          case 'preferred_parent_set':
+            result = await this.client.setPreferredParent(typedArgs.personId, typedArgs.relationshipId);
+            break;
+          case 'preferred_spouse_get':
+            result = await this.client.getPreferredSpouse(typedArgs.personId);
+            break;
+          case 'preferred_spouse_set':
+            result = await this.client.setPreferredSpouse(typedArgs.personId, typedArgs.relationshipId);
+            break;
+          // Phase 2: Conclusion Management
+          case 'conclusion_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteConclusion(typedArgs.entityType, typedArgs.entityId, typedArgs.conclusionId);
+            }
+            break;
+
+          // Phase 3: Place Authority
+          case 'place_search':
+            result = await this.client.searchPlaces(typedArgs.query, typedArgs.count);
+            break;
+
+          case 'place_get':
+            result = await this.client.getPlace(typedArgs.placeId);
+            break;
+
+          case 'place_children':
+            result = await this.client.getPlaceChildren(typedArgs.placeId);
+            break;
+
+          // Phase 3: Discussions
+          case 'discussions_get':
+            result = await this.client.getDiscussionReferences(typedArgs.personId);
+            break;
+
+          case 'discussion_read':
+            result = await this.client.getDiscussion(typedArgs.discussionId);
+            break;
+
+          case 'discussion_create':
+            result = await this.client.createDiscussion(typedArgs.title, typedArgs.details);
+            break;
+
+          case 'discussion_update':
+            result = await this.client.updateDiscussion(typedArgs.discussionId, typedArgs.title, typedArgs.details);
+            break;
+
+          case 'discussion_comment':
+            result = await this.client.createDiscussionComment(typedArgs.discussionId, typedArgs.text);
+            break;
+
+          case 'discussion_comment_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteDiscussionComment(typedArgs.discussionId, typedArgs.commentId);
+            }
+            break;
+
+          // Phase 3: Source Description Management
+          case 'source_description_get':
+            result = await this.client.getSourceDescription(typedArgs.sourceId);
+            break;
+
+          case 'source_description_create':
+            result = await this.client.createSourceDescription({
+              title: typedArgs.title,
+              citation: typedArgs.citation,
+              about: typedArgs.about,
+              notes: typedArgs.notes,
+            });
+            break;
+
+          case 'source_description_update':
+            result = await this.client.updateSourceDescription(typedArgs.sourceId, {
+              title: typedArgs.title,
+              citation: typedArgs.citation,
+              about: typedArgs.about,
+              notes: typedArgs.notes,
+            });
+            break;
+
+          case 'source_description_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteSourceDescription(typedArgs.sourceId);
+            }
+            break;
+
+          case 'source_description_changes':
+            result = await this.client.getSourceDescriptionChanges(typedArgs.sourceId);
+            break;
+
+          // Phase 3: Relationship-Level Sources
+          case 'relationship_sources_get':
+            result = await this.client.getRelationshipSources(typedArgs.type, typedArgs.id);
+            break;
+
+          case 'relationship_source_attach':
+            result = await this.client.attachRelationshipSource(typedArgs.type, typedArgs.id, typedArgs.sourceRef);
+            break;
+
+          case 'relationship_source_detach':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.detachRelationshipSource(typedArgs.type, typedArgs.id, typedArgs.sourceRefId);
+            }
+            break;
+
+          // Phase 3: Relationship-Level Notes
+          case 'relationship_notes_get':
+            result = await this.client.getRelationshipNotes(typedArgs.type, typedArgs.id);
+            break;
+
+          case 'relationship_note_create':
+            result = await this.client.createRelationshipNote(typedArgs.type, typedArgs.id, typedArgs.subject, typedArgs.text);
+            break;
+
+          case 'relationship_note_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteRelationshipNote(typedArgs.type, typedArgs.id, typedArgs.noteId);
+            }
+            break;
+
+          // Phase 3: Source Box / Folders
+          case 'source_folders_list':
+            result = await this.client.getSourceFolders();
+            break;
+
+          case 'source_folder_create':
+            result = await this.client.createSourceFolder(typedArgs.name);
+            break;
+
+          case 'source_folder_get':
+            result = await this.client.getSourceFolder(typedArgs.folderId);
+            break;
+
+          case 'source_folder_update':
+            result = await this.client.updateSourceFolder(typedArgs.folderId, typedArgs.name);
+            break;
+
+          case 'source_folder_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteSourceFolder(typedArgs.folderId);
+            }
+            break;
+
+          case 'source_folder_add':
+            result = await this.client.addToSourceFolder(typedArgs.folderId, typedArgs.sourceIds);
+            break;
+
+          case 'source_folder_remove':
+            if (!typedArgs.confirm) {
+              result = { error: 'Removal not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.removeFromSourceFolder(typedArgs.folderId, typedArgs.sourceIds);
+            }
+            break;
+
+          // Phase 3: Memory CRUD
+          case 'memory_get':
+            result = await this.client.getMemory(typedArgs.memoryId);
+            break;
+
+          case 'memory_delete':
+            if (!typedArgs.confirm) {
+              result = { error: 'Deletion not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.deleteMemory(typedArgs.memoryId);
+            }
+            break;
+
+          case 'memory_attach':
+            result = await this.client.attachMemory(typedArgs.personId, typedArgs.memoryId);
+            break;
+
+          case 'memory_detach':
+            if (!typedArgs.confirm) {
+              result = { error: 'Detachment not confirmed. Set confirm: true to proceed.' };
+            } else {
+              result = await this.client.detachMemory(typedArgs.personId, typedArgs.referenceId);
+            }
+            break;
+
+          // Phase 6: Record Hints
+          case 'hints_get':
+            result = await this.client.getRecordHints(typedArgs.personId, typedArgs.collection);
+            break;
+
+          // Phase 6: Ordinance Information
+          case 'ordinances_get':
+            result = await this.client.getOrdinances(typedArgs.personId);
+            break;
+
+          // Phase 6: Date Standardization
+          case 'date_standardize':
+            result = await this.client.standardizeDate(typedArgs.dateString);
+            break;
+
+          // Phase 6: Maternal Side Research Plan
+          case 'mother_side_plan':
+            result = await generateMotherSidePlan(this.client, typedArgs.personId, typedArgs.generations);
+            break;
+
+          // Phase 6: Collections Browsing
+          case 'collections_list':
+            result = await this.client.listCollections(typedArgs.count);
+            break;
+
+          case 'collection_get':
+            result = await this.client.getCollection(typedArgs.collectionId);
+            break;
+
           default:
             throw new Error(`Unknown tool: ${name}`);
         }

@@ -17,10 +17,10 @@ export class EncryptedTokenStore {
   private password: string;
 
   constructor(password?: string) {
-    const passwordInput = password || process.env.FAMILY_MCP_PASSWORD;
+    const passwordInput = password || process.env.COPILOT_MCP_FAMILY_MCP_PASSWORD || process.env.FAMILY_MCP_PASSWORD;
     
     if (!passwordInput) {
-      console.warn('Warning: Using default password for token encryption. Set FAMILY_MCP_PASSWORD environment variable for better security.');
+      console.warn('Warning: Using default password for token encryption. Set FAMILY_MCP_PASSWORD (or COPILOT_MCP_FAMILY_MCP_PASSWORD for GitHub Copilot) environment variable for better security.');
       this.password = 'default-password-change-me';
     } else {
       this.password = passwordInput;
