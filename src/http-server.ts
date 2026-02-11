@@ -18,6 +18,12 @@ import {
   generateFatherSidePlan,
   getCacheInfo,
 } from './tools.js';
+import {
+  generateFamilyTreeChart,
+  generateTimelineChart,
+  generatePedigreeChart,
+  generateFamilyTreeDrawing,
+} from './visualization.js';
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = process.env.HOST || '0.0.0.0';
@@ -154,6 +160,18 @@ export class FamilySearchHTTPServer {
             break;
           case 'healthcheck':
             result = await this.client.healthcheck();
+            break;
+          case 'family_tree_chart':
+            result = await generateFamilyTreeChart(this.client, typedArgs.personId, typedArgs.generations, typedArgs.direction);
+            break;
+          case 'timeline_chart':
+            result = await generateTimelineChart(this.client, typedArgs.personId, typedArgs.includeRelatives);
+            break;
+          case 'pedigree_chart':
+            result = await generatePedigreeChart(this.client, typedArgs.personId, typedArgs.generations);
+            break;
+          case 'family_tree_drawing':
+            result = await generateFamilyTreeDrawing(this.client, typedArgs.personId, typedArgs.generations);
             break;
           default:
             throw new Error(`Unknown tool: ${name}`);

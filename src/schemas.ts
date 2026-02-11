@@ -124,5 +124,27 @@ export const CacheClearSchema = z.object({
   pattern: z.string().optional().describe('Pattern to match keys to clear (optional)'),
 });
 
+// Visualization schemas
+export const FamilyTreeChartSchema = z.object({
+  personId: z.string().describe('The ID of the root person for the family tree chart'),
+  generations: z.number().optional().describe('Number of generations to include (default: 3)'),
+  direction: z.enum(['TB', 'BT', 'LR', 'RL']).optional().describe('Chart direction: TB (top-bottom), BT (bottom-top), LR (left-right), RL (right-left). Default: TB'),
+});
+
+export const TimelineChartSchema = z.object({
+  personId: z.string().describe('The ID of the person for the timeline chart'),
+  includeRelatives: z.boolean().optional().describe('Include key relatives in the timeline (default: false)'),
+});
+
+export const PedigreeChartSchema = z.object({
+  personId: z.string().describe('The ID of the root person for the pedigree chart'),
+  generations: z.number().optional().describe('Number of ancestor generations to include (default: 4)'),
+});
+
+export const FamilyTreeDrawingSchema = z.object({
+  personId: z.string().describe('The ID of the root person for the Excalidraw family tree drawing'),
+  generations: z.number().optional().describe('Number of generations to include (default: 3)'),
+});
+
 // Healthcheck schema
 export const HealthcheckSchema = z.object({});

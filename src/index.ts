@@ -18,6 +18,12 @@ import {
   generateFatherSidePlan,
   getCacheInfo,
 } from './tools.js';
+import {
+  generateFamilyTreeChart,
+  generateTimelineChart,
+  generatePedigreeChart,
+  generateFamilyTreeDrawing,
+} from './visualization.js';
 
 class FamilySearchMCPServer {
   private server: Server;
@@ -202,6 +208,22 @@ class FamilySearchMCPServer {
 
         case 'healthcheck':
           result = await this.client.healthcheck();
+          break;
+
+        case 'family_tree_chart':
+          result = await generateFamilyTreeChart(this.client, args.personId, args.generations, args.direction);
+          break;
+
+        case 'timeline_chart':
+          result = await generateTimelineChart(this.client, args.personId, args.includeRelatives);
+          break;
+
+        case 'pedigree_chart':
+          result = await generatePedigreeChart(this.client, args.personId, args.generations);
+          break;
+
+        case 'family_tree_drawing':
+          result = await generateFamilyTreeDrawing(this.client, args.personId, args.generations);
           break;
 
         default:

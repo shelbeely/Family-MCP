@@ -279,6 +279,56 @@ export function getTools(): Tool[] {
         properties: {},
       },
     },
+    // Visualization tools - inspired by mcp-mermaid and excalidraw-mcp
+    {
+      name: 'family_tree_chart',
+      description: 'Generate a Mermaid flowchart of a family tree. Output is Mermaid syntax that can be rendered by any Mermaid-compatible viewer (mermaid.live, GitHub markdown, VS Code) or with the mcp-mermaid server (https://github.com/hustcc/mcp-mermaid)',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the root person for the family tree chart' },
+          generations: { type: 'number', description: 'Number of generations to include (default: 3)' },
+          direction: { type: 'string', enum: ['TB', 'BT', 'LR', 'RL'], description: 'Chart direction: TB (top-bottom), BT (bottom-top), LR (left-right), RL (right-left). Default: TB' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'timeline_chart',
+      description: 'Generate a Mermaid timeline diagram of a person\'s life events. Output is Mermaid syntax that can be rendered by any Mermaid-compatible viewer or with the mcp-mermaid server',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person for the timeline chart' },
+          includeRelatives: { type: 'boolean', description: 'Include key relatives in the timeline (default: false)' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'pedigree_chart',
+      description: 'Generate a Mermaid pedigree/ancestry chart showing ancestors. Output is Mermaid syntax that can be rendered by any Mermaid-compatible viewer or with the mcp-mermaid server',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the root person for the pedigree chart' },
+          generations: { type: 'number', description: 'Number of ancestor generations to include (default: 4)' },
+        },
+        required: ['personId'],
+      },
+    },
+    {
+      name: 'family_tree_drawing',
+      description: 'Generate an Excalidraw JSON drawing of a family tree. Output is Excalidraw-compatible JSON that can be imported into Excalidraw (excalidraw.com) or rendered via the excalidraw-mcp server (https://github.com/excalidraw/excalidraw-mcp). Supports MCP Apps for interactive rendering.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the root person for the Excalidraw family tree drawing' },
+          generations: { type: 'number', description: 'Number of generations to include (default: 3)' },
+        },
+        required: ['personId'],
+      },
+    },
   ];
 }
 
