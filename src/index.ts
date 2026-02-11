@@ -16,6 +16,7 @@ import {
   rankHints,
   generateTimelineSummary,
   generateFatherSidePlan,
+  generateMotherSidePlan,
   getCacheInfo,
 } from './tools.js';
 import {
@@ -557,6 +558,35 @@ class FamilySearchMCPServer {
           } else {
             result = await this.client.detachMemory(args.personId, args.referenceId);
           }
+          break;
+
+        // Phase 6: Record Hints
+        case 'hints_get':
+          result = await this.client.getRecordHints(args.personId, args.collection);
+          break;
+
+        // Phase 6: Ordinance Information
+        case 'ordinances_get':
+          result = await this.client.getOrdinances(args.personId);
+          break;
+
+        // Phase 6: Date Standardization
+        case 'date_standardize':
+          result = await this.client.standardizeDate(args.dateString);
+          break;
+
+        // Phase 6: Maternal Side Research Plan
+        case 'mother_side_plan':
+          result = await generateMotherSidePlan(this.client, args.personId, args.generations);
+          break;
+
+        // Phase 6: Collections Browsing
+        case 'collections_list':
+          result = await this.client.listCollections(args.count);
+          break;
+
+        case 'collection_get':
+          result = await this.client.getCollection(args.collectionId);
           break;
 
         default:

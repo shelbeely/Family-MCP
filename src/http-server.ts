@@ -16,6 +16,7 @@ import {
   rankHints,
   generateTimelineSummary,
   generateFatherSidePlan,
+  generateMotherSidePlan,
   getCacheInfo,
 } from './tools.js';
 import {
@@ -474,6 +475,35 @@ export class FamilySearchHTTPServer {
             } else {
               result = await this.client.detachMemory(typedArgs.personId, typedArgs.referenceId);
             }
+            break;
+
+          // Phase 6: Record Hints
+          case 'hints_get':
+            result = await this.client.getRecordHints(typedArgs.personId, typedArgs.collection);
+            break;
+
+          // Phase 6: Ordinance Information
+          case 'ordinances_get':
+            result = await this.client.getOrdinances(typedArgs.personId);
+            break;
+
+          // Phase 6: Date Standardization
+          case 'date_standardize':
+            result = await this.client.standardizeDate(typedArgs.dateString);
+            break;
+
+          // Phase 6: Maternal Side Research Plan
+          case 'mother_side_plan':
+            result = await generateMotherSidePlan(this.client, typedArgs.personId, typedArgs.generations);
+            break;
+
+          // Phase 6: Collections Browsing
+          case 'collections_list':
+            result = await this.client.listCollections(typedArgs.count);
+            break;
+
+          case 'collection_get':
+            result = await this.client.getCollection(typedArgs.collectionId);
             break;
 
           default:

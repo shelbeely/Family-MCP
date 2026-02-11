@@ -1102,6 +1102,78 @@ export function getTools(): Tool[] {
         required: ['personId', 'referenceId', 'confirm'],
       },
     },
+    // Phase 6: Record Hints
+    {
+      name: 'hints_get',
+      description: 'Get server-generated record hints for a person from FamilySearch. Optionally filter by collection.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get record hints for' },
+          collection: { type: 'string', description: 'Optional collection ID to filter hints' },
+        },
+        required: ['personId'],
+      },
+    },
+    // Phase 6: Ordinance Information
+    {
+      name: 'ordinances_get',
+      description: 'Get ordinance information for a person in FamilySearch (read-only).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'The ID of the person to get ordinance information for' },
+        },
+        required: ['personId'],
+      },
+    },
+    // Phase 6: Date Standardization
+    {
+      name: 'date_standardize',
+      description: 'Standardize a date string using FamilySearch date standardization (e.g. "abt 1850" -> standardized result).',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          dateString: { type: 'string', description: 'The date string to standardize' },
+        },
+        required: ['dateString'],
+      },
+    },
+    // Phase 6: Maternal Side Research Plan
+    {
+      name: 'mother_side_plan',
+      description: 'Generate a research plan for the maternal side of a family',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          personId: { type: 'string', description: 'Person ID' },
+          generations: { type: 'number', description: 'Number of generations' },
+        },
+        required: ['personId'],
+      },
+    },
+    // Phase 6: Collections Browsing
+    {
+      name: 'collections_list',
+      description: 'List available record collections in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          count: { type: 'number', description: 'Maximum number of collections to return' },
+        },
+      },
+    },
+    {
+      name: 'collection_get',
+      description: 'Get details about a specific record collection in FamilySearch.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          collectionId: { type: 'string', description: 'The ID of the collection to retrieve' },
+        },
+        required: ['collectionId'],
+      },
+    },
   ];
 }
 
@@ -1244,6 +1316,50 @@ export async function generateFatherSidePlan(client: FamilySearchClient, personI
         {
           generation: 3,
           person: 'Great-grandfather (paternal)',
+          tasks: [
+            'Search immigration records if applicable',
+            'Find land and property records',
+            'Research in country of origin',
+          ],
+        },
+      ],
+    },
+  };
+}
+
+export async function generateMotherSidePlan(client: FamilySearchClient, personId: string, generations?: number): Promise<any> {
+  const person = await client.getPerson(personId);
+  const parents = await client.getParents(personId);
+  
+  const mother = parents.find((p: any) => p.gender === 'FEMALE');
+  
+  return {
+    personId,
+    plan: {
+      title: `Maternal Line Research Plan for ${person.display?.name}`,
+      generations: generations || 4,
+      steps: [
+        {
+          generation: 1,
+          person: mother?.display?.name || 'Unknown mother',
+          tasks: [
+            'Verify birth and death records',
+            'Find marriage certificate',
+            'Search census records',
+          ],
+        },
+        {
+          generation: 2,
+          person: 'Maternal grandfather',
+          tasks: [
+            'Identify through mother\'s birth certificate',
+            'Search for marriage and census records',
+            'Look for military records',
+          ],
+        },
+        {
+          generation: 3,
+          person: 'Great-grandfather (maternal)',
           tasks: [
             'Search immigration records if applicable',
             'Find land and property records',

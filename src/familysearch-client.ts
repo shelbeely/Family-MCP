@@ -694,6 +694,37 @@ export class FamilySearchClient {
     });
   }
 
+  // Phase 6: Record Hints
+  async getRecordHints(personId: string, collection?: string): Promise<any> {
+    const params = new URLSearchParams();
+    if (collection) params.set('collection', collection);
+    const qs = params.toString();
+    return this.request(`/tree/persons/${personId}/matches${qs ? `?${qs}` : ''}`);
+  }
+
+  // Phase 6: Ordinance Information
+  async getOrdinances(personId: string): Promise<any> {
+    return this.request(`/tree/persons/${personId}/ordinances`);
+  }
+
+  // Phase 6: Date Standardization
+  async standardizeDate(dateString: string): Promise<any> {
+    const params = new URLSearchParams({ date: dateString });
+    return this.request(`/dates?${params}`);
+  }
+
+  // Phase 6: Collections Browsing
+  async listCollections(count?: number): Promise<any> {
+    const params = new URLSearchParams();
+    if (count) params.set('count', String(count));
+    const qs = params.toString();
+    return this.request(`/collections${qs ? `?${qs}` : ''}`);
+  }
+
+  async getCollection(collectionId: string): Promise<any> {
+    return this.request(`/collections/${collectionId}`);
+  }
+
   // Healthcheck
   async healthcheck(): Promise<any> {
     try {

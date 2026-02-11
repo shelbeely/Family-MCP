@@ -490,3 +490,34 @@ export const MemoryDetachSchema = z.object({
   referenceId: z.string().describe('The ID of the memory reference to detach'),
   confirm: z.boolean().describe('Must be true to confirm detachment'),
 });
+
+// Phase 6: Record Hints
+export const HintsGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get record hints for'),
+  collection: z.string().optional().describe('Optional collection ID to filter hints'),
+});
+
+// Phase 6: Ordinance Information
+export const OrdinancesGetSchema = z.object({
+  personId: z.string().describe('The ID of the person to get ordinance information for'),
+});
+
+// Phase 6: Date Standardization
+export const DateStandardizeSchema = z.object({
+  dateString: z.string().describe('The date string to standardize (e.g. "abt 1850")'),
+});
+
+// Phase 6: Maternal Side Research Plan
+export const MotherSidePlanSchema = z.object({
+  personId: z.string().describe('The ID of the person to generate mother side plan for'),
+  generations: z.number().optional().describe('Number of generations to analyze'),
+});
+
+// Phase 6: Collections Browsing
+export const CollectionsListSchema = z.object({
+  count: z.number().optional().describe('Maximum number of collections to return'),
+});
+
+export const CollectionGetSchema = z.object({
+  collectionId: z.string().describe('The ID of the collection to retrieve'),
+});
