@@ -14,11 +14,18 @@ Your FamilySearch OAuth access token. Required to authenticate with the FamilySe
 export FAMILYSEARCH_TOKEN="your-access-token-here"
 ```
 
+For **GitHub Copilot coding agent**, use the `COPILOT_MCP_` prefixed variant:
+```bash
+COPILOT_MCP_FAMILYSEARCH_TOKEN="your-access-token-here"
+```
+
 **How to get a token:**
-1. Go to [FamilySearch Developers](https://www.familysearch.org/developers/)
-2. Create an application
-3. Use the OAuth flow to obtain an access token
+1. Go to [FamilySearch Developers](https://developers.familysearch.org/)
+2. Create an application and register your `client_id` and `redirect_uri`
+3. Use the [OAuth 2.0 Authorization Code flow](https://developers.familysearch.org/main/docs/authentication) to obtain an access token
 4. Token will look like: `USYS1234567890ABCDEF`
+
+> **Note:** Access tokens expire after **24 hours** or **60 minutes of inactivity**. You will need to obtain a new token when it expires.
 
 ### Optional
 
@@ -29,6 +36,8 @@ Password used to encrypt/decrypt tokens stored locally.
 ```bash
 export FAMILY_MCP_PASSWORD="your-secure-password"
 ```
+
+For **GitHub Copilot coding agent**: `COPILOT_MCP_FAMILY_MCP_PASSWORD`
 
 **Default:** `"default-password-change-me"`
 
@@ -41,6 +50,8 @@ Base URL for the FamilySearch API.
 ```bash
 export FAMILYSEARCH_BASE_URL="https://api.familysearch.org/platform"
 ```
+
+For **GitHub Copilot coding agent**: `COPILOT_MCP_FAMILYSEARCH_BASE_URL`
 
 **Default:** `"https://api.familysearch.org/platform"`
 
@@ -162,6 +173,51 @@ PORT=3000 node /path/to/Family-MCP/dist/http-server.js
 # Connect to: http://localhost:3000/sse
 ```
 
+### GitHub Copilot Coding Agent
+
+GitHub's Copilot coding agent only exposes environment variables prefixed with `COPILOT_MCP_` to MCP servers. This server supports both standard and `COPILOT_MCP_`-prefixed variable names.
+
+**Step 1:** In your repository, go to **Settings → Code & automation → Copilot → Coding agent**.
+
+**Step 2:** Add these secrets (with the `COPILOT_MCP_` prefix):
+
+| Secret Name | Value |
+|-------------|-------|
+| `COPILOT_MCP_FAMILYSEARCH_TOKEN` | Your FamilySearch OAuth access token |
+| `COPILOT_MCP_FAMILY_MCP_PASSWORD` | (Optional) Encryption password |
+| `COPILOT_MCP_FAMILYSEARCH_BASE_URL` | (Optional) API base URL |
+
+**Step 3:** Configure the MCP server in your repository's `.github/copilot/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "familysearch": {
+      "command": "node",
+      "args": ["./dist/index.js"],
+      "env": {
+        "FAMILYSEARCH_TOKEN": "${COPILOT_MCP_FAMILYSEARCH_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+**Environment variable resolution order:**
+1. `COPILOT_MCP_FAMILYSEARCH_TOKEN` (Copilot coding agent)
+2. `FAMILYSEARCH_TOKEN` (standard / Claude Desktop)
+3. Encrypted token store (`~/.family-mcp-tokens`)
+
+### Environment Variable Reference
+
+| Purpose | Standard Name | Copilot Name |
+|---------|---------------|--------------|
+| API access token | `FAMILYSEARCH_TOKEN` | `COPILOT_MCP_FAMILYSEARCH_TOKEN` |
+| Token encryption password | `FAMILY_MCP_PASSWORD` | `COPILOT_MCP_FAMILY_MCP_PASSWORD` |
+| API base URL | `FAMILYSEARCH_BASE_URL` | `COPILOT_MCP_FAMILYSEARCH_BASE_URL` |
+| HTTP server port | `PORT` | — |
+| HTTP server host | `HOST` | — |
+
 ## Production Configuration
 
 ### Security Checklist
@@ -278,6 +334,6 @@ import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 ## Getting Help
 
 - **Documentation:** Check README.md and EXAMPLES.md
-- **FamilySearch API Docs:** https://www.familysearch.org/developers/docs/api/
+- **FamilySearch API Docs:** https://developers.familysearch.org/
 - **MCP Documentation:** https://modelcontextprotocol.io/
 - **Issues:** https://github.com/shelbeely/Family-MCP/issues

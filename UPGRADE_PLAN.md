@@ -10,6 +10,7 @@ This document provides a comprehensive, prioritized upgrade plan for the Family-
 
 ## Table of Contents
 
+- [Authentication Audit](#authentication-audit)
 - [Current Coverage Summary](#current-coverage-summary)
 - [Phase 1: Core API Gap Closure (High Priority)](#phase-1-core-api-gap-closure-high-priority)
 - [Phase 2: Extended Tree Operations (Medium Priority)](#phase-2-extended-tree-operations-medium-priority)
@@ -20,6 +21,73 @@ This document provides a comprehensive, prioritized upgrade plan for the Family-
 - [Phase 7: Developer Experience & Ecosystem (Lower Priority)](#phase-7-developer-experience--ecosystem-lower-priority)
 - [API Endpoint Coverage Matrix](#api-endpoint-coverage-matrix)
 - [Implementation Guidelines](#implementation-guidelines)
+
+---
+
+## Authentication Audit
+
+> **Reference:** https://developers.familysearch.org/main/docs/authentication
+
+### How FamilySearch API Authentication Works
+
+FamilySearch uses **OAuth 2.0 Authorization Code** flow for all API access:
+
+| Component | URL |
+|-----------|-----|
+| **Authorization endpoint** | `https://ident.familysearch.org/cis-web/oauth2/v3/authorization` |
+| **Token endpoint** | `https://ident.familysearch.org/cis-web/oauth2/v3/token` |
+| **API base URL** | `https://api.familysearch.org/platform` |
+| **Sandbox API base URL** | `https://sandbox.familysearch.org/platform` |
+
+**OAuth 2.0 flow:**
+1. Redirect user to authorization endpoint with `client_id`, `redirect_uri`, `response_type=code`
+2. User authenticates on FamilySearch, redirected back with authorization `code`
+3. Exchange `code` for `access_token` (and optional `refresh_token`) at token endpoint
+4. Use `Authorization: Bearer <access_token>` header on all API requests
+
+**Token lifetime:** Access tokens expire after **24 hours** or after **60 minutes of inactivity**.
+
+**PKCE:** Recommended for native/mobile apps (include `code_challenge` and `code_verifier`).
+
+### Current Implementation — What's Correct ✅
+
+| Aspect | Status | Detail |
+|--------|--------|--------|
+| Bearer token header | ✅ Correct | `Authorization: Bearer ${accessToken}` in `familysearch-client.ts` |
+| API base URL | ✅ Correct | `https://api.familysearch.org/platform` as default |
+| Sandbox support | ✅ Correct | Configurable via `FAMILYSEARCH_BASE_URL` env var |
+| HTTPS only | ✅ Correct | All API calls over HTTPS |
+| Encrypted token storage | ✅ Correct | AES-256-GCM with scrypt key derivation |
+| Accept header | ✅ Correct | `application/json` |
+
+### Current Implementation — Issues Found ❌
+
+| Issue | Severity | Detail |
+|-------|----------|--------|
+| No OAuth 2.0 flow | Medium | Users must manually obtain tokens outside the app |
+| No token refresh | Medium | Expired tokens (24h / 60min idle) cause silent 401 failures |
+| No `client_id` support | Medium | FamilySearch requires a registered `client_id` for OAuth |
+| ~~Copilot agent incompatible~~ | ~~High~~ **Fixed** | ~~Env vars lacked `COPILOT_MCP_` prefix~~ — Now supports both prefixed and unprefixed vars |
+| No token expiry detection | Low | No proactive detection of token expiration |
+
+### GitHub Copilot Coding Agent Compatibility — Fixed ✅
+
+GitHub's Copilot coding agent only exposes environment variables prefixed with `COPILOT_MCP_` to MCP servers ([docs](https://docs.github.com/en/copilot/how-tos/use-copilot-agents/coding-agent/extend-coding-agent-with-mcp)). The server now accepts both naming conventions:
+
+| Purpose | Standard Env Var | Copilot Env Var (also accepted) |
+|---------|------------------|---------------------------------|
+| Access token | `FAMILYSEARCH_TOKEN` | `COPILOT_MCP_FAMILYSEARCH_TOKEN` |
+| Encryption password | `FAMILY_MCP_PASSWORD` | `COPILOT_MCP_FAMILY_MCP_PASSWORD` |
+| API base URL | `FAMILYSEARCH_BASE_URL` | `COPILOT_MCP_FAMILYSEARCH_BASE_URL` |
+
+**Resolution order:** `COPILOT_MCP_*` → standard env var → encrypted token store (for tokens).
+
+### Remaining Authentication Upgrades (See Phase 4.1 and 5)
+
+- Implement full OAuth 2.0 Authorization Code flow with PKCE
+- Add token refresh automation
+- Support `client_id` / `redirect_uri` configuration
+- Detect 401 responses and prompt for re-authentication
 
 ---
 

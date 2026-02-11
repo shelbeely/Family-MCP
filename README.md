@@ -95,6 +95,26 @@ Then ask Claude:
 
 The server works with any MCP-compatible client that supports stdio or HTTP transport.
 
+### With GitHub Copilot Coding Agent
+
+Add secrets with the `COPILOT_MCP_` prefix in your repository's **Settings → Copilot → Coding agent**, then configure `.github/copilot/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "familysearch": {
+      "command": "node",
+      "args": ["./dist/index.js"],
+      "env": {
+        "FAMILYSEARCH_TOKEN": "${COPILOT_MCP_FAMILYSEARCH_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+See [CONFIGURATION.md](./CONFIGURATION.md) for full setup details.
+
 ## 📚 Documentation
 
 - **[TOOLS.md](./TOOLS.md)** - Complete reference for all 24 tools
@@ -151,10 +171,12 @@ Family-MCP/
 
 To get a FamilySearch access token:
 
-1. Register at [FamilySearch Developers](https://www.familysearch.org/developers/)
-2. Create an application
-3. Use OAuth flow to get an access token
+1. Register at [FamilySearch Developers](https://developers.familysearch.org/)
+2. Create an application and register your `client_id` / `redirect_uri`
+3. Use the [OAuth 2.0 Authorization Code flow](https://developers.familysearch.org/main/docs/authentication) to obtain an access token
 4. Set token in environment or encrypted storage
+
+> **Note:** Access tokens expire after **24 hours** or **60 minutes of inactivity**. See [CONFIGURATION.md](./CONFIGURATION.md) for details.
 
 ## 🚀 Tools Overview
 
@@ -183,7 +205,7 @@ MIT License - see [LICENSE](./LICENSE) file for details.
 ## 💬 Support
 
 - **Issues**: [GitHub Issues](https://github.com/shelbeely/Family-MCP/issues)
-- **FamilySearch API**: [API Documentation](https://www.familysearch.org/developers/docs/api/)
+- **FamilySearch API**: [API Documentation](https://developers.familysearch.org/)
 - **MCP Protocol**: [MCP Documentation](https://modelcontextprotocol.io/)
 
 ## 🙏 Acknowledgments

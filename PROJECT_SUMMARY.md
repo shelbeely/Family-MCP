@@ -244,5 +244,5 @@ MIT License - See LICENSE file for details
 
 - **Issues**: https://github.com/shelbeely/Family-MCP/issues
 - **Pull Requests**: Welcome!
-- **FamilySearch API**: https://www.familysearch.org/developers/docs/api/
+- **FamilySearch API**: https://developers.familysearch.org/
 - **MCP Documentation**: https://modelcontextprotocol.io/

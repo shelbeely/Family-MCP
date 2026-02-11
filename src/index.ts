@@ -45,11 +45,12 @@ class FamilySearchMCPServer {
   }
 
   private initializeClient(): void {
-    const token = process.env.FAMILYSEARCH_TOKEN || this.tokenStore.loadToken();
+    const token = process.env.COPILOT_MCP_FAMILYSEARCH_TOKEN || process.env.FAMILYSEARCH_TOKEN || this.tokenStore.loadToken();
     
     if (token) {
       this.client = new FamilySearchClient({
         accessToken: token,
+        baseUrl: process.env.COPILOT_MCP_FAMILYSEARCH_BASE_URL || process.env.FAMILYSEARCH_BASE_URL,
         cache: this.cache,
       });
     }
@@ -74,7 +75,7 @@ class FamilySearchMCPServer {
           {
             type: 'text',
             text: JSON.stringify({
-              error: 'FamilySearch client not initialized. Please set FAMILYSEARCH_TOKEN environment variable.',
+              error: 'FamilySearch client not initialized. Please set FAMILYSEARCH_TOKEN (or COPILOT_MCP_FAMILYSEARCH_TOKEN for GitHub Copilot) environment variable.',
             }),
           },
         ],
