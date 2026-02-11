@@ -1,5 +1,7 @@
 import { FamilySearchClient } from './familysearch-client.js';
 
+const MAX_SEED = 2000000000;
+
 function normalizeGender(person: any): string {
   return person.display?.gender || person.gender?.type?.split('/').pop() || '';
 }
@@ -252,6 +254,7 @@ export async function generateFamilyTreeDrawing(
 
   const elements: any[] = [];
   const personPositions = new Map<string, { x: number; y: number }>();
+  const timestamp = Date.now();
 
   // Layout persons in a grid
   const cols = Math.ceil(Math.sqrt(persons.length));
@@ -292,7 +295,7 @@ export async function generateFamilyTreeDrawing(
       roundness: { type: 3, value: 10 },
       angle: 0,
       opacity: 100,
-      seed: Math.floor(Math.random() * 2000000000),
+      seed: Math.floor(Math.random() * MAX_SEED),
       version: 1,
       isDeleted: false,
       boundElements: [],
@@ -300,7 +303,7 @@ export async function generateFamilyTreeDrawing(
       frameId: null,
       link: null,
       locked: false,
-      updated: Date.now(),
+      updated: timestamp,
     });
 
     // Name text element
@@ -322,7 +325,7 @@ export async function generateFamilyTreeDrawing(
       strokeWidth: 1,
       angle: 0,
       opacity: 100,
-      seed: Math.floor(Math.random() * 2000000000),
+      seed: Math.floor(Math.random() * MAX_SEED),
       version: 1,
       isDeleted: false,
       boundElements: [],
@@ -330,7 +333,7 @@ export async function generateFamilyTreeDrawing(
       frameId: null,
       link: null,
       locked: false,
-      updated: Date.now(),
+      updated: timestamp,
     });
 
     // Lifespan text element
@@ -353,7 +356,7 @@ export async function generateFamilyTreeDrawing(
         strokeWidth: 1,
         angle: 0,
         opacity: 100,
-        seed: Math.floor(Math.random() * 2000000000),
+        seed: Math.floor(Math.random() * MAX_SEED),
         version: 1,
         isDeleted: false,
         boundElements: [],
@@ -361,7 +364,7 @@ export async function generateFamilyTreeDrawing(
         frameId: null,
         link: null,
         locked: false,
-        updated: Date.now(),
+        updated: timestamp,
       });
     }
   });
@@ -397,7 +400,7 @@ export async function generateFamilyTreeDrawing(
       strokeStyle: isParentChild ? 'solid' : 'dashed',
       angle: 0,
       opacity: 100,
-      seed: Math.floor(Math.random() * 2000000000),
+      seed: Math.floor(Math.random() * MAX_SEED),
       version: 1,
       isDeleted: false,
       boundElements: [],
@@ -405,7 +408,7 @@ export async function generateFamilyTreeDrawing(
       frameId: null,
       link: null,
       locked: false,
-      updated: Date.now(),
+      updated: timestamp,
       startBinding: null,
       endBinding: null,
       startArrowhead: null,
