@@ -2,7 +2,7 @@
 
 > **Master API Reference:** https://developers.familysearch.org/  
 > **API Reference Guide:** https://developers.familysearch.org/main/reference/api-reference-guide  
-> **Current Implementation:** 27 tools across 10 categories
+> **Current Implementation:** 95 tools across 17 categories
 
 This document provides a comprehensive, prioritized upgrade plan for the Family-MCP server. Each section maps directly to FamilySearch API capabilities documented at [developers.familysearch.org](https://developers.familysearch.org/). Items are organized into phases by priority and dependency.
 
@@ -1494,18 +1494,18 @@ For each new tool, the following files need to be updated:
 | Phase | New Tools | Running Total |
 |-------|-----------|---------------|
 | Current (with visualization) | — | 27 |
-| Phase 1 (Core API Gap Closure) | 10 | 37 |
-| Phase 2 (Extended Tree Operations) | 20 | 57 |
-| Phase 3 (Collaboration & Metadata) | 31 | 88 |
+| Phase 1 (Core API Gap Closure) ✅ | 10 | 37 |
+| Phase 2 (Extended Tree Operations) ✅ | 20 | 57 |
+| Phase 3 (Collaboration & Metadata) ✅ | 31 | 88 |
 | Phase 4 (Infrastructure) | 0 (infrastructure) | 88 |
 | Phase 5 (Auth & Authorization) | 0 (infrastructure) | 88 |
-| Phase 6 (Advanced Research) | 7 | 95 |
+| Phase 6 (Advanced Research) ✅ | 7 | 95 |
 | Phase 7 (Developer Experience) | 0 (infrastructure) | 95 |
 | Phase 8 (Portraits, Media & User Content) | 16 | 111 |
 | Phase 9 (User Trees, Groups & Genealogies) | 23 | 134 |
 | Phase 10 (Standards, Vocabularies & Names) | 13 | 147 |
 
-**Target: ~147 tools** covering the full FamilySearch API surface, up from the current 27.
+**Target: ~147 tools** covering the full FamilySearch API surface. Currently **95 tools implemented** (Phases 1-3 and 6 complete).
 
 > **Note:** The estimate above includes every documented FamilySearch API endpoint. In practice, many endpoints are low-priority or niche. A practical "full coverage" target of **~95 tools** (Phases 1-7) covers all frequently-used API capabilities. Phases 8-10 represent exhaustive completeness.
 
@@ -1545,6 +1545,102 @@ Custom agents use the `.agent.md` format with YAML frontmatter for `name`, `desc
 ### ✅ Copilot Coding Agent Compatibility (Implemented)
 
 Added `COPILOT_MCP_` prefixed environment variable support for GitHub Copilot coding agent compatibility.
+
+### ✅ Phase 1: Core API Gap Closure (Implemented)
+
+Added 10 tools for core API coverage:
+
+| Tool | Category | Description |
+|------|----------|-------------|
+| `ancestry_get` | Ancestry & Pedigree | Get multi-generation ancestor pedigree |
+| `descendancy_get` | Ancestry & Pedigree | Get multi-generation descendancy tree |
+| `person_create` | Person CRUD | Create a new person in the Family Tree |
+| `person_update` | Person CRUD | Update person facts and details |
+| `person_delete` | Person CRUD | Delete a person from the Family Tree |
+| `relationship_create_couple` | Relationship Management | Create a couple relationship |
+| `relationship_create_parent_child` | Relationship Management | Create a parent-child relationship |
+| `relationship_delete` | Relationship Management | Delete a relationship |
+| `user_current` | User & Session | Get current authenticated user info |
+| `user_tree_person` | User & Session | Get the user's default tree person |
+| `relationship_find` | User & Navigation | Find relationship path between two persons |
+
+### ✅ Phase 2: Extended Tree Operations (Implemented)
+
+Added 20 tools for extended tree operations:
+
+| Tool | Category | Description |
+|------|----------|-------------|
+| `change_history_person` | Change History | Get change history for a person |
+| `change_history_relationship` | Change History | Get change history for a relationship |
+| `notes_get` | Notes | Get notes attached to a person |
+| `note_create` | Notes | Create a note on a person |
+| `note_update` | Notes | Update a note |
+| `note_delete` | Notes | Delete a note |
+| `persons_batch_get` | Batch Operations | Get multiple persons in one request |
+| `person_merge` | Merge | Merge duplicate person records |
+| `person_restore` | Restore | Restore a deleted person |
+| `relationship_restore` | Restore | Restore a deleted relationship |
+| `change_restore` | Restore | Restore to a previous change state |
+| `matches_get` | Match Management | Get potential duplicate matches |
+| `match_resolve` | Match Management | Accept or reject a match |
+| `not_a_match_create` | Match Management | Declare two persons are not the same |
+| `not_a_match_delete` | Match Management | Remove a not-a-match declaration |
+| `preferred_parent_get` | Preferred Relationships | Get preferred parent relationship |
+| `preferred_parent_set` | Preferred Relationships | Set preferred parent relationship |
+| `preferred_spouse_get` | Preferred Relationships | Get preferred spouse relationship |
+| `preferred_spouse_set` | Preferred Relationships | Set preferred spouse relationship |
+| `conclusion_delete` | Conclusion Management | Delete a conclusion from a person |
+
+### ✅ Phase 3: Collaboration & Metadata (Implemented)
+
+Added 31 tools for collaboration and metadata features:
+
+| Tool | Category | Description |
+|------|----------|-------------|
+| `place_search` | Place Authority | Search the place authority database |
+| `place_get` | Place Authority | Get place details by ID |
+| `place_children` | Place Authority | Get child/subdivision places |
+| `discussions_get` | Discussions | Get discussions for a person |
+| `discussion_read` | Discussions | Read a discussion thread |
+| `discussion_create` | Discussions | Create a new discussion |
+| `discussion_update` | Discussions | Update a discussion |
+| `discussion_comment` | Discussions | Add a comment to a discussion |
+| `discussion_comment_delete` | Discussions | Delete a discussion comment |
+| `source_description_get` | Source Descriptions | Get a source description |
+| `source_description_create` | Source Descriptions | Create a source description |
+| `source_description_update` | Source Descriptions | Update a source description |
+| `source_description_delete` | Source Descriptions | Delete a source description |
+| `source_description_changes` | Source Descriptions | Get source description change history |
+| `relationship_sources_get` | Relationship Sources | Get sources on a relationship |
+| `relationship_source_attach` | Relationship Sources | Attach a source to a relationship |
+| `relationship_source_detach` | Relationship Sources | Detach a source from a relationship |
+| `relationship_notes_get` | Relationship Notes | Get notes on a relationship |
+| `relationship_note_create` | Relationship Notes | Create a note on a relationship |
+| `relationship_note_delete` | Relationship Notes | Delete a note from a relationship |
+| `source_folders_list` | Source Folders | List source folders |
+| `source_folder_create` | Source Folders | Create a source folder |
+| `source_folder_get` | Source Folders | Get folder details and contents |
+| `source_folder_update` | Source Folders | Update a folder name |
+| `source_folder_delete` | Source Folders | Delete a source folder |
+| `source_folder_add` | Source Folders | Add a source to a folder |
+| `source_folder_remove` | Source Folders | Remove a source from a folder |
+| `memory_get` | Memory Management | Get memory details by ID |
+| `memory_delete` | Memory Management | Delete a memory |
+| `memory_attach` | Memory Management | Attach a memory to a person |
+| `memory_detach` | Memory Management | Detach a memory from a person |
+
+### ✅ Phase 6: Advanced Research & Discovery (Implemented)
+
+Added 7 tools for advanced research capabilities:
+
+| Tool | Category | Description |
+|------|----------|-------------|
+| `hints_get` | Record Hints | Get server-generated record hints |
+| `ordinances_get` | Ordinances | Get ordinance/temple work status |
+| `date_standardize` | Date Standardization | Standardize date strings |
+| `mother_side_plan` | Research Planning | Research plan for maternal lineage |
+| `collections_list` | Collections | List record collections |
+| `collection_get` | Collections | Get collection details |
 
 ---
 
